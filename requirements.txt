@@ -1,0 +1,4 @@
+# Requirements for manager.py
+# See requirements in backend to run the development environment
+docker==5.0.3
+python-dotenv==0.19.1
