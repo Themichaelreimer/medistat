@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+import os
 from pathlib import Path
-import socket
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,13 +24,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '*j0rudf=32cn+_)bw+r9j7wo)&q40r0-k5dlml5i278en%yz10'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False if socket.getfqdn() in ['api.medistat.online']  else True
+DEBUG = os.environ.get('DEBUG', False)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'api.medistat.online']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'api.medistat.online']
 
 CORS_ALLOW_ALL_ORIGINS = True  # Just to check the CORS module is even working
 CORS_ALLOWED_HOSTS = [
-    "http://localhost:8080",
+    "http://localhost:80",
     "https://medistat.online"
     ]
 
@@ -94,10 +94,11 @@ WSGI_APPLICATION = 'mortality.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'USER': 'morty',
-        'NAME': 'mortality',
-        'PASSWORD': 'M743kzKeiTe$$ra'
+        'ENGINE': 'django.db.backends.postgresql',
+        'USER': os.environ['POSTGRES_USERNAME'],
+        'NAME': os.environ['DATABASE_NAME'],
+        'PASSWORD': os.environ['POSTGRES_PASSWORD'],
+        'HOST': os.environ.get('POSTGRES_HOSTNAME', 'localhost'),  # Here localhost is used by default, to make it easier to run local dev environments
     }
 }
 

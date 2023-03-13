@@ -5,4 +5,3 @@ def run():
     ensure_env_file_exists()
     command = detect_docker_compose_command()
     os.system(f'bash -c "{command} up -d"')
-

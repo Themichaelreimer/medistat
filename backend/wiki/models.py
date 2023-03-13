@@ -168,7 +168,7 @@ class WikiDisease(models.Model):
 
         if self.mortality_rate:
             mortality_rate = self.mortality_rate.display_value()
-        elif deaths and deaths.frequency_int and frequency and frequency.frequency_int and frequency.frequency_int is not 0:
+        elif deaths and deaths.frequency_int and frequency and frequency.frequency_int and frequency.frequency_int != 0:
             mortality_rate = deaths.frequency_int / frequency.frequency_int
             mortality_rate = unit_rule(100 * mortality_rate)
         else:

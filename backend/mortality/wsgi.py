@@ -11,9 +11,9 @@ import os, sys
 
 from django.core.wsgi import get_wsgi_application
 
-sys.path.append('/var/www/mortality_visualized')
-sys.path.append('/var/www/mortality_visualized/mortality/')
-
+if os.path.isdir('/opt/code'):
+    sys.path.append('/opt/code/')
+    sys.path.append('/opt/code/mortality/')
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mortality.settings')
 
 application = get_wsgi_application()

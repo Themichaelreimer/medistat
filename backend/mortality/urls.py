@@ -21,7 +21,7 @@ import wiki.views as wiki_views
 import hmd.views as hmd_views
 
 urlpatterns = [
-    #path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('regions/', covid_views.get_regions),
     path('cases/', covid_views.get_cases),
     path('deaths/', covid_views.get_deaths),

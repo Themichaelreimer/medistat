@@ -14,7 +14,6 @@ import importlib
 
 if __name__ == "__main__":
     
-    print(f'{sys.argv=}')
     command = None
     try:
         command = sys.argv[1]

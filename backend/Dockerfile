@@ -3,7 +3,9 @@ FROM ubuntu:lunar-20230301
 # System packages
 RUN apt update
 RUN apt install -y python3 python3-pip
+RUN apt install -y virtualenv
 RUN apt install -y apache2 apache2-utils libapache2-mod-wsgi-py3
+RUN apt install -y postgresql-client
 RUN apt clean
 
 # Redirects logs to stderr and stdout so docker can capture them
@@ -15,13 +17,16 @@ RUN a2dissite 000-default
 RUN a2ensite backend
 
 # User management
-RUN groupadd -r apacheuser && useradd -r -g apacheuser apacheuser
-RUN chown -R apacheuser /var/log/apache2/
-RUN chown -R apacheuser /var/run/apache2/
-USER apacheuser
+RUN chown -R www-data /var/log/apache2/
+RUN chown -R www-data /var/run/apache2/
 
 # Setup python project
 WORKDIR /opt/code
-COPY backend/* /opt/code
+COPY backend /opt/code/
+RUN chown -R www-data /opt/code 
+
+USER www-data
+RUN virtualenv venv-backend
+RUN . /opt/code/venv-backend/bin/activate && pip3 install -r requirements.txt
 
 CMD ["apache2ctl", "-D", "FOREGROUND"]
