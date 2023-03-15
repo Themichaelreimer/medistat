@@ -16,15 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-import covid.views as covid_views
 import wiki.views as wiki_views
 import hmd.views as hmd_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('regions/', covid_views.get_regions),
-    path('cases/', covid_views.get_cases),
-    path('deaths/', covid_views.get_deaths),
     path('diseases/', wiki_views.disease_index),
     path('lifetables/', hmd_views.get_life_table),
     path('lifetable_years/', hmd_views.get_lifetable_years),

@@ -28,18 +28,21 @@ DEBUG = os.environ.get('DEBUG', False)
 
 ALLOWED_HOSTS = [
     '127.0.0.1', 
-    'localhost', 
+    'localhost',
+    'backend'
     'api.medistat.online'
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True  # Just to check the CORS module is even working
 CORS_ALLOWED_HOSTS = [
-    "http://localhost:80",
+    "http://localhost",
+    "http://medistat",
     "https://medistat.online"
     ]
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost'
+    'http://medistat'
     'https://api.medistat.com',
 ]
 
@@ -56,7 +59,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'hmd',
-    'covid',
     'wiki',
     'disease'
 ]
