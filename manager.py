@@ -9,11 +9,13 @@
     If any kind of argparse is wanted, that should be implemented inside each command.
 """
 
+import dotenv
 import sys
 import importlib
 
 if __name__ == "__main__":
     
+    dotenv.load_dotenv()
     command = None
     try:
         command = sys.argv[1]

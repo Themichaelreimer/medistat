@@ -26,7 +26,11 @@ SECRET_KEY = '*j0rudf=32cn+_)bw+r9j7wo)&q40r0-k5dlml5i278en%yz10'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', False)
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'api.medistat.online']
+ALLOWED_HOSTS = [
+    '127.0.0.1', 
+    'localhost', 
+    'api.medistat.online'
+]
 
 CORS_ALLOW_ALL_ORIGINS = True  # Just to check the CORS module is even working
 CORS_ALLOWED_HOSTS = [
@@ -34,9 +38,9 @@ CORS_ALLOWED_HOSTS = [
     "https://medistat.online"
     ]
 
-#TODO
 CSRF_TRUSTED_ORIGINS = [
-    'api.medistat.com',
+    'http://localhost'
+    'https://api.medistat.com',
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
