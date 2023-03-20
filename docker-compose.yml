@@ -1,6 +1,5 @@
 version: '3.8'
 services:
-
   # Django application served by apache
   backend:
     hostname: backend
@@ -10,7 +9,7 @@ services:
     networks:
       - backend
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://backend:80"]
+      test: ["CMD", "curl", "--fail", "http://localhost/diseases/"]
       interval: 30s
       timeout: 30s
       retries: 5
@@ -49,7 +48,7 @@ services:
     volumes:
     - grafana-data:/var/lib/grafana
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:${GRAFANA_WEBSERVER_PORT}/login"]
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:3000/login/"]
       interval: 30s
       timeout: 30s
       retries: 5

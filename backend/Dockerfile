@@ -1,11 +1,13 @@
 FROM ubuntu:lunar-20230301
 
 # System packages
-RUN apt update
+RUN apt update --fix-missing
 RUN apt install -y python3 python3-pip
 RUN apt install -y virtualenv
 RUN apt install -y apache2 apache2-utils libapache2-mod-wsgi-py3
 RUN apt install -y postgresql-client
+# curl is needed for health checks, which run inside the container itself 
+RUN apt install -y curl 
 RUN apt clean
 
 # Redirects logs to stderr and stdout so docker can capture them

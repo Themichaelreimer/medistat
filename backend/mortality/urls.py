@@ -25,5 +25,4 @@ urlpatterns = [
     path('lifetables/', hmd_views.get_life_table),
     path('lifetable_years/', hmd_views.get_lifetable_years),
     path('lifetables_countries/', hmd_views.get_countries),
-    # TODO: Deaths
 ]
