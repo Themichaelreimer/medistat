@@ -5,7 +5,9 @@ from .common.docker_helpers import get_containers_map
 
 """
     This command checks that all services that should run, are running.
-    The main use of this command is in tests and CI/CD pipelines. 
+
+    The main use of this command is in tests, CI/CD pipelines, and monitoring.
+    `docker ps` is a better alternative for development purposes
 """
 
 EXPECTED_COMPOSE_FILE_NAME = 'docker-compose.yml'
@@ -32,7 +34,7 @@ def get_file_contents() -> dict:
         return yaml.load(file, Loader=yaml.CLoader)
     
 
-def check_container_state(container:Container):
+def check_container_state(container:Container) -> None:
     """
         Checks the state of a container to tell whether it's healthy and running.
         Raises an exception if this is not the case, with a useful error message
