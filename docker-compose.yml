@@ -8,10 +8,10 @@ services:
       - backend
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost/diseases/"]
-      interval: 30s
-      timeout: 30s
+      interval: 10s
+      timeout: 10s
       retries: 5
-      start_period: 30s
+      start_period: 10s
     environment:
       - POSTGRES_HOSTNAME=${POSTGRES_HOSTNAME}
       - POSTGRES_USERNAME=${POSTGRES_USERNAME}
@@ -29,10 +29,10 @@ services:
       - backend
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost/"]
-      interval: 30s
-      timeout: 30s
+      interval: 10s
+      timeout: 10s
       retries: 5
-      start_period: 30s
+      start_period: 10s
 
   postgres:
     hostname: postgres

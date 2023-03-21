@@ -1,6 +1,6 @@
 import os
 
-from .common.docker_helpers import get_docker_container_ids_by_name
+from .common.docker_helpers import get_docker_container_ids_by_name, bash
 
 """
     Initializes the database. If a database already exists, it may be dropped and recreated, so that it can be rebuild cleanly.

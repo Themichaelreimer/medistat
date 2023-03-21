@@ -1,5 +1,7 @@
 import os
 import docker
+import subprocess
+import re
 from typing import List, Dict
 
 
@@ -20,12 +22,27 @@ def detect_docker_compose_command() -> str:
         Throws an error otherwise
     """
 
-    if os.system('docker-compose --version') == 0:
+    if bash('docker-compose --version') == 0:
         return 'docker-compose'
-    if os.system('docker compose --version') == 0:
+    if bash('docker compose --version') == 0:
         return 'docker compose'
     else:
         raise Exception("Could not find docker compose. Are you sure it's installed?")
+
+
+def get_docker_compose_version() -> str:
+    """
+        Returns the version of docker-compose being used. eg: "2.15"
+    """
+    docker_compose = detect_docker_compose_command()
+    command_tokens = docker_compose.split() + ['--version']
+    version_output = subprocess.run(command_tokens, stdout=subprocess.PIPE).stdout.decode()
+    
+    matches = re.search(r'v(\d[\d\/.]*)', version_output)
+    if matches:
+        match = matches[0]
+        return match[1:]
+    raise Exception(f"Could not parse output of {''.join(command_tokens)}: {version_output}")
 
 
 def get_docker_container_ids_by_name(name:str) -> List[str]:
@@ -46,7 +63,7 @@ def ensure_env_file_exists():
         If the file doesn't exist, the sample .env file is moved to the expected path.
     """
     if not '.env' in os.listdir():
-        os.system("bash -c 'cp config/sample.env .env'")
+        bash("cp config/sample.env .env")
 
 
 def get_containers_map() -> Dict[str,docker.models.containers.Container]:
