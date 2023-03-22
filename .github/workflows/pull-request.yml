@@ -19,7 +19,7 @@ jobs:
           pip3 install -r requirements.txt
           python3 manager.py build
           python3 manager.py up
-          python3 manager.py init_db
+          python3 manager.py init_db < Y
 
       - name: "Ensure services are healthy"
         run: python3 manager.py check_services
