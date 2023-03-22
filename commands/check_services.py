@@ -18,11 +18,11 @@ def run():
 
     # We should be able to find all of these in a 'Running' state
     service_names = list(services.keys())
-    is_docker_compose_v1 = get_docker_compose_version()[0] == 1
+    is_docker_compose_v1 = get_docker_compose_version()[0] == '1'
 
     containers = get_containers_map()
     for service in service_names:
-        expected_container_name = f"medistat_{service}_1"
+        expected_container_name = f"medistat_{service}_1" if is_docker_compose_v1 else f"medistat-{service}-1"
         assert expected_container_name in containers, f'Container `{expected_container_name}` is not running'
 
         container = containers[expected_container_name]

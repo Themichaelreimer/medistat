@@ -32,16 +32,15 @@ def detect_docker_compose_command() -> str:
 
 def get_docker_compose_version() -> str:
     """
-        Returns the version of docker-compose being used. eg: "2.15"
+        Returns the version of docker-compose being used. eg: "2.15" or "1.29.2"
     """
     docker_compose = detect_docker_compose_command()
     command_tokens = docker_compose.split() + ['--version']
     version_output = subprocess.run(command_tokens, stdout=subprocess.PIPE).stdout.decode()
     
-    matches = re.search(r'v(\d[\d\/.]*)', version_output)
+    matches = re.search(r'\d[\d\/.]*', version_output)
     if matches:
-        match = matches[0]
-        return match[1:]
+        return matches[0]
     raise Exception(f"Could not parse output of {''.join(command_tokens)}: {version_output}")
 
 
