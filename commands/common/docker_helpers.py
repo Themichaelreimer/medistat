@@ -14,6 +14,13 @@ def bash(cmd:str) -> int:
     return os.system(f'bash -c "{cmd}"')
 
 
+def get_docker_project_name() -> str:
+    """
+        Returns the docker project name. This string is used as a prefix to all container names
+    """
+    return os.environ.get('PROJECT_NAME', 'medistat')
+
+
 def detect_docker_compose_command() -> str:
     """
         Returns the name of the docker compose command installed on the system.
@@ -50,9 +57,12 @@ def get_docker_container_ids_by_name(name:str) -> List[str]:
         :param name: All containers returned will have `name` as a substring
         :return: list of string ids of dockercontainers
     """
+    project_name = get_docker_project_name()
     cli = docker.from_env()
+
+    # list will only allow us to filter by one condition at a time, but we need two.
     containers = cli.containers.list(filters={'name': name})
-    return [x.id for x in containers]
+    return [x.id for x in containers if project_name in x.name]
 
 
 def ensure_env_file_exists():
@@ -69,6 +79,7 @@ def get_containers_map() -> Dict[str,docker.models.containers.Container]:
     """
         Returns a dict mapping container_name -> container object
     """
+    project_name = get_docker_project_name()
     cli = docker.from_env()
-    containers = cli.containers.list()
+    containers = cli.containers.list(filters={'name': project_name})
     return {x.name: x for x in containers}

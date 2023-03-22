@@ -1,7 +1,7 @@
 from docker.models.containers import Container  # Only imported for type hinting
 import yaml
 
-from .common.docker_helpers import get_containers_map, get_docker_compose_version
+from .common.docker_helpers import get_containers_map, get_docker_compose_version, get_docker_project_name
 
 """
     This command checks that all services that should run, are running.
@@ -19,10 +19,11 @@ def run():
     # We should be able to find all of these in a 'Running' state
     service_names = list(services.keys())
     is_docker_compose_v1 = get_docker_compose_version()[0] == '1'
+    project_name = get_docker_project_name()
 
     containers = get_containers_map()
     for service in service_names:
-        expected_container_name = f"medistat_{service}_1" if is_docker_compose_v1 else f"medistat-{service}-1"
+        expected_container_name = f"{project_name}_{service}_1" if is_docker_compose_v1 else f"{project_name}-{service}-1"
         assert expected_container_name in containers, f'Container `{expected_container_name}` is not running'
 
         container = containers[expected_container_name]
