@@ -1,0 +1,17 @@
+# Install by copying to /etc/systemd/system/
+# Expects a medistat user and node_exporter installed in it's home dir
+
+[Unit]
+Description=Node Exporter server resource monitor
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=medistat
+ExecStart=/home/medistat/node_exporter/node_exporter
+
+[Install]
+WantedBy=multi-user.target

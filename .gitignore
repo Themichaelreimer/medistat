@@ -2,3 +2,4 @@ __pycache__
 .conf
 .env
 .DS_Store
+.mypy_cache

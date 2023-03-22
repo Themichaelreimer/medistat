@@ -3,7 +3,7 @@ import os
 def run():
     print('Usage: python3 manager.py <COMMAND_NAME> <ARGS?>')
 
-    files = [ x for x in os.listdir('commands') if not os.path.isdir(f'commands/{x}')]
+    files = [ x for x in os.listdir('commands') if x[-3:] == '.py' and not os.path.isdir(f'commands/{x}')]
     files.sort()
 
     print(f'Available commands: ')
