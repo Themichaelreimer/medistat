@@ -1,0 +1,35 @@
+name: Pull Request
+run-name: PR ${{github.event.pull_request.number}}
+on:
+  pull_request:
+    types: [ready_for_review, opened, synchronize, closed]
+
+jobs:
+  setup:
+    runs-on: ['self-hosted', 'staging']
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+        with:
+          clean: 'true'
+          submodules: 'false'
+          fetch-depth: 1
+      - name: "Setup"
+        run: |
+          pip3 install -r requirements
+          python3 manager.py build
+          python3 manager.py up
+          python3 manager.py init_db
+
+      - name: "Ensure services are healthy"
+        run: python3 manager.py check_services
+
+      - name: "Ensure code style is acceptable"
+        run: python3 manager.py check_code_quality
+
+      - name: "Run unit tests"
+        run: echo "this is where I would run my tests... IF I HAD ANY"
+
+concurrency:
+  group: pr_pipeline_${{ github.event.pull_request.number }}
+  cancel-in-progress: true
