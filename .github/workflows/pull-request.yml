@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 1
       - name: "Setup"
         run: |
-          pip3 install -r requirements
+          pip3 install -r requirements.txt
           python3 manager.py build
           python3 manager.py up
           python3 manager.py init_db
