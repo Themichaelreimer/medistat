@@ -19,6 +19,7 @@ jobs:
           pip3 install -r requirements.txt
           cp ~/medistat.env .env
           python3 manager.py build
+          python3 manager.py down
           python3 manager.py up
           python3 manager.py init_db -y 
 
@@ -28,8 +29,8 @@ jobs:
       - name: "Ensure code style is acceptable"
         run: python3 manager.py check_code_quality
 
-      - name: "Run unit tests"
-        run: echo "this is where I would run my tests... IF I HAD ANY"
+      - name: "Run backend tests"
+        run: python3 manager.py manage test
 
 concurrency:
   group: pr_pipeline_${{ github.event.pull_request.number }}
