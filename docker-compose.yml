@@ -13,6 +13,7 @@ services:
       retries: 5
       start_period: 10s
     environment:
+      - PROJECT_NAME=${PROJECT_NAME}
       - POSTGRES_HOSTNAME=${POSTGRES_HOSTNAME}
       - POSTGRES_USERNAME=${POSTGRES_USERNAME}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
