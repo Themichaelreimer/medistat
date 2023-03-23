@@ -13,8 +13,8 @@ from .common.docker_helpers import get_containers_map, get_docker_compose_versio
 """
 
 EXPECTED_COMPOSE_FILE_NAME = 'docker-compose.yml'
-STARTING_MAX_RETRIES = 10  # Retry health check up to this number of times, if the container is still starting
-STARTING_RETRY_LATENCY = 20  # Number of seconds between health checks if a container is still starting
+STARTING_MAX_RETRIES = 30  # Retry health check up to this number of times, if the container is still starting
+STARTING_RETRY_LATENCY = 5  # Number of seconds between health checks if a container is still starting
 
 def run():
     compose = get_file_contents()
@@ -61,7 +61,7 @@ def check_container_state(container:Container) -> None:
                 print(f'Container `{container.name}` is still starting. Waiting {STARTING_RETRY_LATENCY}s')
                 sleep(STARTING_RETRY_LATENCY)
                 # Need to refresh our container object to get the new object state, else it'll be healthy and we'll never know
-                container = get_docker_container_ids_by_name(container.name)
+                container = get_docker_container_ids_by_name(container.name)[0]
             else:
                 raise Exception(f'Unexpected container health state: {health_state}')
         else:
