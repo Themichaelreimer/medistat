@@ -20,7 +20,7 @@ jobs:
           cp ~/medistat.env .env
           python3 manager.py build
           python3 manager.py up
-          python3 manager.py init_db < echo "Y"
+          python3 manager.py -y init_db
 
       - name: "Ensure services are healthy"
         run: python3 manager.py check_services
