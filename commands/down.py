@@ -1,8 +1,10 @@
 import os
-from .common.docker_helpers import detect_docker_compose_command
+from .common.docker_helpers import detect_docker_compose_command, get_docker_project_name
 
 def run():
     command = detect_docker_compose_command()
-    os.system(f'bash -c "{command} down"')
+    project_name = get_docker_project_name()
+
+    os.system(f'bash -c "{command} -p {project_name} down"')
 
 

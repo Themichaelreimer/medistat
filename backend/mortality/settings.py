@@ -97,14 +97,14 @@ WSGI_APPLICATION = 'mortality.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
+PG_HOSTNAME = f"{os.environ['PROJECT_NAME']}_{os.environ['POSTGRES_HOSTNAME']}" if os.environ.get('POSTGRES_HOSTNAME') else 'localhost'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'USER': os.environ['POSTGRES_USERNAME'],
         'NAME': os.environ['DATABASE_NAME'],
         'PASSWORD': os.environ['POSTGRES_PASSWORD'],
-        'HOST': os.environ.get('POSTGRES_HOSTNAME', 'localhost'),  # Here localhost is used by default, to make it easier to run local dev environments
+        'HOST': PG_HOSTNAME,  # Here localhost is used by default, to make it easier to run local dev environments
     }
 }
 

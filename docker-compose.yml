@@ -2,7 +2,7 @@ version: '3.8'
 services:
   # Django application served by apache
   backend:
-    hostname: backend
+    hostname: ${PROJECT_NAME}_backend
     image: backend
     networks:
       - backend
@@ -13,6 +13,7 @@ services:
       retries: 5
       start_period: 10s
     environment:
+      - PROJECT_NAME=${PROJECT_NAME}
       - POSTGRES_HOSTNAME=${POSTGRES_HOSTNAME}
       - POSTGRES_USERNAME=${POSTGRES_USERNAME}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -20,11 +21,11 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
 
   frontend:
-    hostname: frontend
+    hostname: ${PROJECT_NAME}_frontend
     image: frontend
     ports:
-      - 80:80
-      - 443:443
+      - ${HTTP_PORT}:80
+      - ${HTTPS_PORT}:443
     networks:
       - backend
     healthcheck:
@@ -35,7 +36,7 @@ services:
       start_period: 10s
 
   postgres:
-    hostname: postgres
+    hostname: ${PROJECT_NAME}_postgres
     image: postgres:14.6
     restart: always  # If the container restarts endlessly and you can't figure out why, change this to 'never'
     environment: 
@@ -72,7 +73,7 @@ services:
       - ${GRAFANA_WEBSERVER_PORT}:3000
   
   redis:
-    hostname: redis
+    hostname: ${PROJECT_NAME}_redis
     image: redis:latest
     command: >
       --requirepass ${REDIS_PASSWORD}

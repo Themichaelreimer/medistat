@@ -1,4 +1,5 @@
 import os
+import sys
 
 from .common.docker_helpers import get_docker_container_ids_by_name, bash
 
@@ -10,12 +11,14 @@ EXPECTED_DATABASE_CONTAINER_NAME = 'postgres'
 EXPECTED_BACKEND_CONTAINER_NAME = 'backend'
 
 def run():
-    #assert os.system('dropdb --version') == 0, "dropdb must be installed from postgresql-client. (Hint: apt install postgresql-client)"
-    #assert os.system('createdb --version') == 0, "createdb must be installed from postgresql-client. (Hint: apt install postgresql-client)"
-    print(f"You are about to initialize your local database running with docker. If you have any existing data, it will be lost forever (a long time).")
-    if input("Do you want to continue? (Y/n)") != "Y":
-        print("Command cancelled")
-        exit(0)
+
+    # If -y is supplied, then we assume the user definitely knows what they're doing here
+    # Useful to supply, for github actions
+    if not '-y' in sys.argv:
+        print(f"You are about to initialize your local database running with docker. If you have any existing data, it will be lost forever (a long time).")
+        if input("Do you want to continue? (Y/n)") != "Y":
+            print("Command cancelled")
+            exit(0)
 
     dbname = os.environ.get('DATABASE_NAME')
     postgres_user = os.environ.get('POSTGRES_USERNAME')

@@ -22,7 +22,11 @@ def run():
     load_venv = "source venv-backend/bin/activate"
     cmd = f'python3 manage.py {" ".join(args)}'
     container_id = get_backend_container_id()
-    os.system(f'docker exec {container_id} /bin/bash -c "{load_venv} && {cmd}"')
+    status_code = os.system(f'docker exec {container_id} /bin/bash -c "{load_venv} && {cmd}"')
+
+    # Exit code here has an extra byte of info - gets the actual exit code via bitshifting
+    status_code = os.WEXITSTATUS(status_code)  
+    exit(status_code)  # Command exit code is needed for GitHub Actions
 
 def get_backend_container_id() -> str:
     matching_containers = get_docker_container_ids_by_name(EXPECTED_CONTAINER_NAME)
