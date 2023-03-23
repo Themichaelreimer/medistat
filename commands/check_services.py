@@ -1,5 +1,7 @@
 from docker.models.containers import Container  # Only imported for type hinting
+from typing import Optional
 import yaml
+from time import sleep
 
 from .common.docker_helpers import get_containers_map, get_docker_compose_version, get_docker_project_name
 
@@ -11,6 +13,8 @@ from .common.docker_helpers import get_containers_map, get_docker_compose_versio
 """
 
 EXPECTED_COMPOSE_FILE_NAME = 'docker-compose.yml'
+STARTING_MAX_RETRIES = 5  # Retry health check up to this number of times, if the container is still starting
+STARTING_RETRY_LATENCY = 5  # Number of seconds between health checks if a container is still starting
 
 def run():
     compose = get_file_contents()
@@ -44,7 +48,33 @@ def check_container_state(container:Container) -> None:
     status = container.attrs['State']['Status']
     assert status == 'running', f'Container `{container.name}` has status `{status}`. It should be `running`.'
 
-    # Health only present if health check is defined
+    # health_state only present if health check is defined, else is None
+    for _ in range(STARTING_MAX_RETRIES):
+        health_state = get_container_health_state(container)
+        if health_state:
+            if health_state == 'healthy':
+                return
+            elif health_state == 'unhealthy':
+                raise Exception(f'Container `{container.name}` has health status of `{health_state}`. It should be `healthy`.')
+            elif health_state == 'starting':
+                # Note that this is the only condition that allows the loop to reach the next iteration
+                print(f'Container `{container.name}` is still starting. Waiting {STARTING_RETRY_LATENCY}s')
+                sleep(STARTING_RETRY_LATENCY)
+            else:
+                raise Exception(f'Unexpected container health state: {health_state}')
+        else:
+            # No health state
+            return
+    raise Exception("Max 'starting' retries reached. Consider investigating why the container is starting slowly, or adjust retry parameters.")
+
+def get_container_health_state(container:Container) -> Optional[str]:
+    """
+        Returns the health state of the container.
+        None will be returned if the container does not define a health check
+
+        Expected values are in: ['healthy', 'unhealthy', 'starting', None]
+        :param container: Docker container object
+        :return: One of ['healthy', 'unhealthy', 'starting', None]
+    """
     if 'Health' in container.attrs['State']:
-        health = container.attrs['State']['Health']['Status']
-        assert health == 'healthy', f'Container `{container.name}` has health status of `{health}`. It should be `healthy`.'
+        return container.attrs['State']['Health']['Status']
