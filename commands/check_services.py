@@ -61,7 +61,7 @@ def check_container_state(container:Container) -> None:
                 print(f'Container `{container.name}` is still starting. Waiting {STARTING_RETRY_LATENCY}s')
                 sleep(STARTING_RETRY_LATENCY)
                 # Need to refresh our container object to get the new object state, else it'll be healthy and we'll never know
-                container = get_containers_map[container.name]
+                container = get_containers_map()[container.name]
             else:
                 raise Exception(f'Unexpected container health state: {health_state}')
         else:
