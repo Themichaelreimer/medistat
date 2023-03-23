@@ -3,7 +3,7 @@ from typing import Optional
 import yaml
 from time import sleep
 
-from .common.docker_helpers import get_containers_map, get_docker_compose_version, get_docker_project_name, get_docker_container_ids_by_name
+from .common.docker_helpers import get_containers_map, get_docker_compose_version, get_docker_project_name
 
 """
     This command checks that all services that should run, are running.
@@ -61,7 +61,7 @@ def check_container_state(container:Container) -> None:
                 print(f'Container `{container.name}` is still starting. Waiting {STARTING_RETRY_LATENCY}s')
                 sleep(STARTING_RETRY_LATENCY)
                 # Need to refresh our container object to get the new object state, else it'll be healthy and we'll never know
-                container = get_docker_container_ids_by_name(container.name)[0]
+                container = get_containers_map[container.name]
             else:
                 raise Exception(f'Unexpected container health state: {health_state}')
         else:
