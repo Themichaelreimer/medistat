@@ -14,7 +14,7 @@ from .common.docker_helpers import get_containers_map, get_docker_compose_versio
 
 EXPECTED_COMPOSE_FILE_NAME = 'docker-compose.yml'
 STARTING_MAX_RETRIES = 5  # Retry health check up to this number of times, if the container is still starting
-STARTING_RETRY_LATENCY = 5  # Number of seconds between health checks if a container is still starting
+STARTING_RETRY_LATENCY = 10  # Number of seconds between health checks if a container is still starting
 
 def run():
     compose = get_file_contents()
