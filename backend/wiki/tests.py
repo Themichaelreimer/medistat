@@ -7,12 +7,6 @@ class WikiTests(TestCase):
     def setUp(self):
         pass
 
-    def test_should_fail(self):
-        """
-            Test test, that should fail so I can confirm failing tests make actions fail
-        """
-        self.fail()
-
     def test_ensure_speciality_case(self):
         """
             Ensure speciality should force specialities to be saved/loaded in lower case
