@@ -14,10 +14,17 @@ jobs:
           clean: 'true'
           submodules: 'false'
           fetch-depth: 1
-      - name: "Setup"
+
+      - name: "Install Requirements"
         run: |
           pip3 install -r requirements.txt
           cp ~/medistat.env .env
+
+      - name: "Ensure code style is acceptable"
+        run: python3 manager.py check_code_quality
+
+      - name: "Setup Services"
+        run: |
           python3 manager.py build
           python3 manager.py down
           python3 manager.py up
@@ -25,9 +32,6 @@ jobs:
 
       - name: "Ensure services are healthy"
         run: python3 manager.py check_services
-
-      - name: "Ensure code style is acceptable"
-        run: python3 manager.py check_code_quality
 
       - name: "Run backend tests"
         run: python3 manager.py manage test
