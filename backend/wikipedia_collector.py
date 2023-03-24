@@ -38,7 +38,8 @@ def get_links_from_page(html: str) -> List[str]:
     ''' Returns a list of links from a page '''
     result = []
     soup = BeautifulSoup(html, features='html.parser')
-    links = soup.find('div', {'id': 'content'}).findChildren('a')
+
+    links = soup.find('div', {'id': 'content'}).findChildren('a') # type:ignore[union-attr]
     for link in links:
         href = link.get('href')
         if href and is_link_valid(href):
