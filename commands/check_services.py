@@ -80,3 +80,4 @@ def get_container_health_state(container:Container) -> Optional[str]:
     """
     if 'Health' in container.attrs['State']:
         return container.attrs['State']['Health']['Status']
+    return None
