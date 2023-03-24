@@ -1,7 +1,7 @@
 # Requirements for manager.py
 # See requirements in backend to run the development environment
 docker==6.0.1
-python-dotenv==0.19.1
+python-dotenv==1.0.0
 PyYAML==6.0
 mypy==1.1.1
 mypy-extensions==1.0.0
