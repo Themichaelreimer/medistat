@@ -11,10 +11,10 @@ from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
-    help = 'Loads wikipedia HTML into the articles table. Should run after wikipedia_collector.py'
+    help = "Loads wikipedia HTML into the articles table. Should run after wikipedia_collector.py"
 
     def handle(self, *args, **options):
-        path = os.path.join('data', 'wikipedia')
+        path = os.path.join("data", "wikipedia")
         files = os.listdir(path)
         for file in files:
             file_path = os.path.join(path, file)
@@ -22,86 +22,81 @@ class Command(BaseCommand):
                 try:
                     process_file(file_path)
                 except Exception as e:
-                    print(f'type({e}) - {e}')
+                    print(f"type({e}) - {e}")
 
 
 # This is the "main" function per file
 def process_file(fpath) -> None:
-    '''
+    """
     Processes a file into an article object
 
     :param fpath: file path. Should be posix path, but string works too
     :return: None. Result is stored in DB
-    '''
+    """
 
-    with open(fpath, 'r') as f:
+    with open(fpath, "r") as f:
         html = f.read()
 
-        soup = BeautifulSoup(html, features='html.parser')
+        soup = BeautifulSoup(html, features="html.parser")
         title = get_title(soup)
         first, text = get_text(soup)
         disease = process_infobox(soup, title)
 
         disease.print()
 
-        article = {
-            'title': title,
-            'first_sentence': first,
-            'disease': disease
-        }
+        article = {"title": title, "first_sentence": first, "disease": disease}
 
         business.create_article(article)
 
 
 def get_title(soup: BeautifulSoup) -> str:
-    '''
+    """
     Gets the title of the article from the html
     :param soup: html soup
     :return: Title (str)
-    '''
-    h1 = soup.find('h1', {'id': 'firstHeading'})
+    """
+    h1 = soup.find("h1", {"id": "firstHeading"})
     return h1.text
 
 
 def get_text(soup: BeautifulSoup) -> Tuple[str, str]:
-    '''
+    """
     Gets the first sentence, and article text from html
     :param soup:
     :return: (first sentence, all sentences) as a tuple of strings
-    '''
-    paragraphs = soup.find_all('p')
+    """
+    paragraphs = soup.find_all("p")
     first = paragraphs[0].text
-    text = ' '.join([p.text for p in paragraphs])
+    text = " ".join([p.text for p in paragraphs])
     return first, text
 
 
-def process_infobox(soup: BeautifulSoup, title:str):
-    '''
+def process_infobox(soup: BeautifulSoup, title: str):
+    """
     Looks for infoboxes on the page, and parses them into an infobox object - which is just
     a collection of data generally found in infoboxes
 
     :param soup:
     :return:
-    '''
-    data = {'name': title}
-    tables = soup.find_all('table', {'class': 'infobox'})
+    """
+    data = {"name": title}
+    tables = soup.find_all("table", {"class": "infobox"})
     for table in tables:
-        for row in table.findChildren('tr'):
-
-            header = row.findChildren('th')
+        for row in table.findChildren("tr"):
+            header = row.findChildren("th")
             if header:
                 header = header[0].text.lower()
 
-                if header == 'classification':
+                if header == "classification":
                     # Extracts ICD-10 class
                     text = row.text
-                    toks = text.split('ICD')
+                    toks = text.split("ICD")
                     if len(toks) > 1:
                         token = toks[1]
-                        if ':' in token:
-                            data['ICD-10'] = token.split(':')[1].strip()
+                        if ":" in token:
+                            data["ICD-10"] = token.split(":")[1].strip()
 
-            value = row.findChildren('td')
+            value = row.findChildren("td")
             if value:
                 value = value[0].text.lower()
 
@@ -109,6 +104,7 @@ def process_infobox(soup: BeautifulSoup, title:str):
                 data[header] = value
 
     return business.handle_infobox(data)
+
 
 def is_float(text: str) -> bool:
     try:
@@ -133,7 +129,7 @@ def pre_process_string(text: str) -> str:
     :return: output
     """
     text = text.strip().lower()
-    return re.sub(r'(\[.*\])', r'', text)
+    return re.sub(r"(\[.*\])", r"", text)
 
 
 def __extract_objects(comma_seperated_list: str, function) -> list:
@@ -144,12 +140,12 @@ def __extract_objects(comma_seperated_list: str, function) -> list:
     :param function: function that maps a token to an object
     :return: list of objects
     """
-    props = comma_seperated_list.split(',')
+    props = comma_seperated_list.split(",")
     objs = [function(pre_process_string(x)) for x in props]
     return objs
 
 
-def __combine_adjacent_numbers(tokens:List[str]) -> List[str]:
+def __combine_adjacent_numbers(tokens: List[str]) -> List[str]:
     """
     Given a list of tokens, if any two adjacent tokens are numbers, they are combined by multiplication
     :param tokens: Tokenized string
@@ -162,8 +158,8 @@ def __combine_adjacent_numbers(tokens:List[str]) -> List[str]:
             skip_next = False
             continue
 
-        if i+1 < len(tokens) and is_float(token) and is_float(tokens[i+1]):
-            result.append(float(token) * float(tokens[i+1]))
+        if i + 1 < len(tokens) and is_float(token) and is_float(tokens[i + 1]):
+            result.append(float(token) * float(tokens[i + 1]))
             skip_next = True
         else:
             result.append(token)
@@ -179,7 +175,7 @@ def __try_recognise_ratio(text: str) -> Union[float, None]:
     """
     # Maybe use this regex? \d+\.?\d* ?(per|\/)? ?\d+
 
-    input = re.sub(r",|'", r'', pre_process_string(text))
+    input = re.sub(r",|'", r"", pre_process_string(text))
     input = re.sub(r"thousand", r"1000 ", input)
     input = re.sub(r"million", r"1000000 ", input)
     input = re.sub(r"billion", r"1000000000 ", input)
@@ -194,7 +190,7 @@ def __try_recognise_ratio(text: str) -> Union[float, None]:
     should_divide = False
 
     for token in tokens:
-        if token in ['per', '/', 'in']:
+        if token in ["per", "/", "in"]:
             should_divide = True
             continue
         if is_float(token):
@@ -202,7 +198,7 @@ def __try_recognise_ratio(text: str) -> Union[float, None]:
                 numerator = token
             elif should_divide:
                 denominator = token
-                return float(numerator)/float(denominator)  # Greedy detect first fraction
+                return float(numerator) / float(denominator)  # Greedy detect first fraction
 
     if numerator:
         if is_int(numerator):
@@ -210,107 +206,107 @@ def __try_recognise_ratio(text: str) -> Union[float, None]:
         return float(numerator)
 
 
-def create_article(params: dict) -> 'Article':
+def create_article(params: dict) -> "Article":
     return ensure_article(params)
 
 
-def handle_infobox(params: dict) -> 'WikiDisease':
+def handle_infobox(params: dict) -> "WikiDisease":
     disease = {}
 
-    name = params.get('name')
-    disease['name'] = name
+    name = params.get("name")
+    disease["name"] = name
 
-    other_names = params.get('other_names')
-    disease['other_names'] = other_names
+    other_names = params.get("other_names")
+    disease["other_names"] = other_names
 
-    icd10 = params.get('ICD-10')
+    icd10 = params.get("ICD-10")
     if not icd10:
-        icd10 = params.get('icd-10')
+        icd10 = params.get("icd-10")
     if icd10:
-        disease['icd10'] = icd10
+        disease["icd10"] = icd10
 
-    specialty = params.get('specialty')
+    specialty = params.get("specialty")
     if specialty:
-        disease['specialty'] = __extract_objects(specialty, ensure_speciality)
+        disease["specialty"] = __extract_objects(specialty, ensure_speciality)
 
-    frequency = params.get('frequency')
+    frequency = params.get("frequency")
     if frequency:
         val = None
         freq = __try_recognise_ratio(frequency)
         if type(freq) == int:
-            val = ensure_frequency({'frequency_int': freq})
+            val = ensure_frequency({"frequency_int": freq})
         if type(freq) == float:
-            val = ensure_frequency({'frequency_ratio': freq})
+            val = ensure_frequency({"frequency_ratio": freq})
         if val:
-            disease['frequency'] = val
+            disease["frequency"] = val
 
-    mortality_rate = params.get('mortality rate')
+    mortality_rate = params.get("mortality rate")
     if mortality_rate:
         val = None
         freq = __try_recognise_ratio(mortality_rate)
         if type(freq) == int:
-            val = ensure_mortality_rate({'frequency_int': freq})
+            val = ensure_mortality_rate({"frequency_int": freq})
         if type(freq) == float:
-            val = ensure_mortality_rate({'frequency_ratio': freq})
+            val = ensure_mortality_rate({"frequency_ratio": freq})
         if val:
-            """ If survival was reported instead of mortality, invert the statistic """
+            """If survival was reported instead of mortality, invert the statistic"""
             if "survival" in mortality_rate:
                 val = 1 - val
-            disease['mortality_rate'] = val
+            disease["mortality_rate"] = val
 
-    cfr = params.get('case fatality rate')
+    cfr = params.get("case fatality rate")
     if cfr:
         val = None
         freq = __try_recognise_ratio(cfr)
         if type(freq) == int:
-            val = ensure_case_fatality_rate({'frequency_int': freq})
+            val = ensure_case_fatality_rate({"frequency_int": freq})
         if type(freq) == float:
-            val = ensure_case_fatality_rate({'frequency_ratio': freq})
+            val = ensure_case_fatality_rate({"frequency_ratio": freq})
         if val:
-            disease['case_fatality_rate'] = val
+            disease["case_fatality_rate"] = val
 
-    deaths = params.get('deaths')
+    deaths = params.get("deaths")
     if deaths:
         val = None
         freq = __try_recognise_ratio(deaths)
         if type(freq) == int:
-            val = ensure_deaths({'frequency_int': freq})
+            val = ensure_deaths({"frequency_int": freq})
         if type(freq) == float:
-            val = ensure_deaths({'frequency_ratio': freq})
+            val = ensure_deaths({"frequency_ratio": freq})
         if val:
-            disease['deaths'] = val
+            disease["deaths"] = val
 
     # Try infer mortality rate from frequency and deaths
-    if not disease.get('mortality_rate'):
-        if type(disease.get('deaths')) == int and type(disease.get('frequency')) == int and not (disease.get('deaths') == 0):
-            disease['mortality_rate'] = disease.get('frequency') / disease.get('deaths')
+    if not disease.get("mortality_rate"):
+        if type(disease.get("deaths")) == int and type(disease.get("frequency")) == int and not (disease.get("deaths") == 0):
+            disease["mortality_rate"] = disease.get("frequency") / disease.get("deaths")
 
-    symptoms = params.get('symptoms')
+    symptoms = params.get("symptoms")
     if symptoms:
-        disease['symptoms'] = __extract_objects(symptoms, ensure_symptom)
+        disease["symptoms"] = __extract_objects(symptoms, ensure_symptom)
 
-    risks = params.get('risk factors')
+    risks = params.get("risk factors")
     if risks:
-        disease['risk_factors'] = __extract_objects(risks, ensure_risk_factor)
+        disease["risk_factors"] = __extract_objects(risks, ensure_risk_factor)
 
-    treatments = params.get('treatment')
+    treatments = params.get("treatment")
     if treatments:
-        disease['treatments'] = __extract_objects(treatments, ensure_treatment)
+        disease["treatments"] = __extract_objects(treatments, ensure_treatment)
 
-    preventions = params.get('prevention')
+    preventions = params.get("prevention")
     if preventions:
-        disease['preventions'] = __extract_objects(preventions, ensure_prevention)
+        disease["preventions"] = __extract_objects(preventions, ensure_prevention)
 
-    diagnostic_methods = params.get('diagnostic methods')
+    diagnostic_methods = params.get("diagnostic methods")
     if diagnostic_methods:
-        disease['diagnostic_methods'] = __extract_objects(diagnostic_methods, ensure_diagnostic_method)
+        disease["diagnostic_methods"] = __extract_objects(diagnostic_methods, ensure_diagnostic_method)
 
-    medications = params.get('medication')
+    medications = params.get("medication")
     if medications:
-        disease['medications'] = __extract_objects(medications, ensure_medication)
+        disease["medications"] = __extract_objects(medications, ensure_medication)
 
-    causes = params.get('causes')
+    causes = params.get("causes")
     if causes:
-        disease['causes'] = __extract_objects(causes, ensure_cause)
+        disease["causes"] = __extract_objects(causes, ensure_cause)
 
     return make_disease(disease)

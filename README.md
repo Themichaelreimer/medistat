@@ -3,16 +3,27 @@
 This project does stuff with medical statistics, and serves as my
 primary portfolio project.
 
-# Getting Started
+# Table of Contents
+- [Getting Started](#getting_started)
+    - [Prerequisites](#prerequisites)
+    - [Setup](#setup)
+- [Repo Components](#repo)
+- [Application Services](#services)
+- [Developer Experience](#devexp)
+    - [Github Actions](#actions)
+    - [Static Typing / MyPy](mypy)
+    - [Dependabot](#dependabot)
 
-## Prerequisites
+# Getting Started <a name="getting_started"></a>
+
+## Prerequisites <a name="prerequisites"></a>
 The following needs to be installed:
 - `docker compose` (Any version should work. Tested with v1 and v2 standalone. Should also work with `docker compose` CLI plugin, but this is not tested.)
 - `bash`. Trivial on most systems, but installing is important for Windows users.
 - `python` >= 3.5. Needed for running management utilities.
 - `pip`. Required to install a few packages used by the management utilities.
 
-## Process
+## Setup<a name="setup"></a>
 
 I have taken great care to ensure this project is as easy to get started with as humanly possible.
 
@@ -26,7 +37,7 @@ I have taken great care to ensure this project is as easy to get started with as
 
 [See README in commands folder](commands/README.md) for a complete list of commands and their descriptions
 
-# Repo Components Tour
+# Repo Components Tour <a name="repo"></a>
 
 This section contains a description of all the major folders in the root of the repo.
 
@@ -42,7 +53,7 @@ This folder contains various management commands that can be run via `manager.py
 ## config
 This folder contains various static config files, including systemd service files and a sample `.env` file
 
-# Services Tour
+# Application Services <a name="services"></a>
 
 ## Backend
 This service serves the backend Django project via apache.
@@ -58,3 +69,26 @@ Metrics Visualization
 
 ## Postgres
 Database
+
+# Developer Experience<a name="devexp"></a>
+
+The following tools and conventions are used to provide the best possible developer experience, and maximize system maintainability
+
+## Github Actions <a name="actions"></a>
+GitHub Actions is used for the following purposes on this project:
+- Performing CI checks to enforce various code quality metrics and conditions (eg, tests passing, linting, static analysis)
+- Ensuring builds are easily repeatable and correctly automated
+- Continuous Deployment of the production application
+## Static Type-checking / MyPy <a name="mypy"></a>
+MyPy is used as part of the checks for code quality, to ensure that where type hints are provided (either by the developer on this project, or by a library), that the code usage doesn't contradict the type hints. In other words, it catches mistakes that are implied by the given type hints, and the better type hints I provide, the more mistakes it can catch early.
+
+Medistat was originally written in 2021, and it did not have any enforcement of type hints at that time. Therefore the configuration of MyPy on this project has gradual adoption in mind, where type hinting can be configured to apply more strictly to some directories than others. See [the config file](config/mypy.ini) for more information
+
+[MyPy has a VSCode plugin that is recommended if you use this IDE.](https://marketplace.visualstudio.com/items?itemName=matangover.mypy)
+
+## Black Code Formatting
+Code style is PEP8 as enforced by [black](https://black.readthedocs.io/en/stable/getting_started.html), except with a max line length of 144 instead of 88. Recommended to have black run on save. Checks are enforced via commands/check_code_quality.py 
+
+## Dependabot <a name="dependabot"></a>
+Dependabot is provided by GitHub to check for security concerns in application packages. It automatically opens pull requests that
+update package versions with security fixes, and those pull requests are automatically tested via the actions pipeline.

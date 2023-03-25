@@ -5,134 +5,290 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='WikiCaseFatalityRate',
+            name="WikiCaseFatalityRate",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('region_name', models.CharField(default='', max_length=255)),
-                ('frequency_int', models.BigIntegerField(null=True)),
-                ('frequency_ratio', models.FloatField(null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("region_name", models.CharField(default="", max_length=255)),
+                ("frequency_int", models.BigIntegerField(null=True)),
+                ("frequency_ratio", models.FloatField(null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='WikiCause',
+            name="WikiCause",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='', max_length=512)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(default="", max_length=512)),
             ],
         ),
         migrations.CreateModel(
-            name='WikiDeath',
+            name="WikiDeath",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('region_name', models.CharField(default='', max_length=255)),
-                ('frequency_int', models.BigIntegerField(null=True)),
-                ('frequency_ratio', models.FloatField(null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("region_name", models.CharField(default="", max_length=255)),
+                ("frequency_int", models.BigIntegerField(null=True)),
+                ("frequency_ratio", models.FloatField(null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='WikiDiagnosticMethod',
+            name="WikiDiagnosticMethod",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='', max_length=512)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(default="", max_length=512)),
             ],
         ),
         migrations.CreateModel(
-            name='WikiFrequency',
+            name="WikiFrequency",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('region_name', models.CharField(default='', max_length=255)),
-                ('frequency_int', models.BigIntegerField(null=True)),
-                ('frequency_ratio', models.FloatField(null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("region_name", models.CharField(default="", max_length=255)),
+                ("frequency_int", models.BigIntegerField(null=True)),
+                ("frequency_ratio", models.FloatField(null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='WikiMedication',
+            name="WikiMedication",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='', max_length=512)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(default="", max_length=512)),
             ],
         ),
         migrations.CreateModel(
-            name='WikiMortalityRate',
+            name="WikiMortalityRate",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('region_name', models.CharField(default='', max_length=255)),
-                ('frequency_int', models.BigIntegerField(null=True)),
-                ('frequency_ratio', models.FloatField(null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("region_name", models.CharField(default="", max_length=255)),
+                ("frequency_int", models.BigIntegerField(null=True)),
+                ("frequency_ratio", models.FloatField(null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='WikiPrevention',
+            name="WikiPrevention",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='', max_length=512)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(default="", max_length=512)),
             ],
         ),
         migrations.CreateModel(
-            name='WikiRiskFactor',
+            name="WikiRiskFactor",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='', max_length=512)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(default="", max_length=512)),
             ],
         ),
         migrations.CreateModel(
-            name='WikiSpecialty',
+            name="WikiSpecialty",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='', max_length=512)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(default="", max_length=512)),
             ],
         ),
         migrations.CreateModel(
-            name='WikiSymptom',
+            name="WikiSymptom",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='', max_length=512)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(default="", max_length=512)),
             ],
         ),
         migrations.CreateModel(
-            name='WikiTreatment',
+            name="WikiTreatment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='', max_length=512)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(default="", max_length=512)),
             ],
         ),
         migrations.CreateModel(
-            name='WikiDisease',
+            name="WikiDisease",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='', max_length=255, unique=True)),
-                ('other_names', models.TextField(default='')),
-                ('icd10', models.CharField(max_length=16, null=True)),
-                ('case_fatality_rate', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='wiki.WikiMortalityRate')),
-                ('causes', models.ManyToManyField(to='wiki.WikiCause')),
-                ('deaths', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='wiki.WikiDeath')),
-                ('diagnostic_methods', models.ManyToManyField(to='wiki.WikiDiagnosticMethod')),
-                ('frequency', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='wiki.WikiFrequency')),
-                ('medications', models.ManyToManyField(to='wiki.WikiMedication')),
-                ('mortality_rate', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='wiki.WikiCaseFatalityRate')),
-                ('preventions', models.ManyToManyField(to='wiki.WikiPrevention')),
-                ('risk_factors', models.ManyToManyField(to='wiki.WikiRiskFactor')),
-                ('specialty', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='wiki.WikiSpecialty')),
-                ('symptoms', models.ManyToManyField(to='wiki.WikiSymptom')),
-                ('treatments', models.ManyToManyField(to='wiki.WikiTreatment')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(default="", max_length=255, unique=True)),
+                ("other_names", models.TextField(default="")),
+                ("icd10", models.CharField(max_length=16, null=True)),
+                (
+                    "case_fatality_rate",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="wiki.WikiMortalityRate",
+                    ),
+                ),
+                ("causes", models.ManyToManyField(to="wiki.WikiCause")),
+                (
+                    "deaths",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="wiki.WikiDeath",
+                    ),
+                ),
+                (
+                    "diagnostic_methods",
+                    models.ManyToManyField(to="wiki.WikiDiagnosticMethod"),
+                ),
+                (
+                    "frequency",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="wiki.WikiFrequency",
+                    ),
+                ),
+                ("medications", models.ManyToManyField(to="wiki.WikiMedication")),
+                (
+                    "mortality_rate",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="wiki.WikiCaseFatalityRate",
+                    ),
+                ),
+                ("preventions", models.ManyToManyField(to="wiki.WikiPrevention")),
+                ("risk_factors", models.ManyToManyField(to="wiki.WikiRiskFactor")),
+                (
+                    "specialty",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="wiki.WikiSpecialty",
+                    ),
+                ),
+                ("symptoms", models.ManyToManyField(to="wiki.WikiSymptom")),
+                ("treatments", models.ManyToManyField(to="wiki.WikiTreatment")),
             ],
         ),
         migrations.CreateModel(
-            name='Article',
+            name="Article",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(default='', max_length=128, unique=True)),
-                ('first_sentence', models.TextField(default='')),
-                ('text', models.TextField(default='')),
-                ('disease', models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, to='wiki.WikiDisease')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(default="", max_length=128, unique=True)),
+                ("first_sentence", models.TextField(default="")),
+                ("text", models.TextField(default="")),
+                (
+                    "disease",
+                    models.ForeignKey(
+                        default=None,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="wiki.WikiDisease",
+                    ),
+                ),
             ],
         ),
     ]

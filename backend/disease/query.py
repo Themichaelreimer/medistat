@@ -22,7 +22,7 @@ def ensure_category_type(name: str) -> CategoryType:
     return category_type
 
 
-def create_categorical_value(category: Union[CategoryType, str], value:str) -> CategoricalValue:
+def create_categorical_value(category: Union[CategoryType, str], value: str) -> CategoricalValue:
     """
     Ensures a category value exists. Eg: (Symptom, 'Cough')
     :param category: Category the value is associated with. Note that the category doesn't have to exist yet
@@ -42,15 +42,11 @@ def create_category_tag(cv: CategoricalValue, citation: Citation, disease: Disea
     :param disease: Disease Object
     :return: CategoricalTag
     """
-    result, _ = CategoricalTag.objects.get_or_create(
-        categorical_value=cv,
-        citation=citation,
-        disease=disease
-    )
+    result, _ = CategoricalTag.objects.get_or_create(categorical_value=cv, citation=citation, disease=disease)
     return result
 
 
-def create_citation(source: str, link: str, timestamp: Optional['datetime']) -> Citation:
+def create_citation(source: str, link: str, timestamp: Optional["datetime"]) -> Citation:
     """
     Creates a new citation object.
     :param source: Display name of source
@@ -61,15 +57,16 @@ def create_citation(source: str, link: str, timestamp: Optional['datetime']) -> 
     result = Citation.objects.create(
         source_name=source,
         link=link,
-        timestamp=timestamp if timestamp else timezone.now()
+        timestamp=timestamp if timestamp else timezone.now(),
     )
     return result
 
 
-def create_statistic(statistic_type: Union[str, StatisticType],
-                     citation: Citation,
-                     value: 'Number',
-                     disease: Disease
-                     ):
+def create_statistic(
+    statistic_type: Union[str, StatisticType],
+    citation: Citation,
+    value: "Number",
+    disease: Disease,
+):
     result, _ = Statistic.objects.get_or_create(statistic_type=statistic_type, citation=citation, value=value, disease=disease)
     return result

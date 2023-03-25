@@ -20,9 +20,9 @@ import wiki.views as wiki_views
 import hmd.views as hmd_views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('diseases/', wiki_views.disease_index),
-    path('lifetables/', hmd_views.get_life_table),
-    path('lifetable_years/', hmd_views.get_lifetable_years),
-    path('lifetables_countries/', hmd_views.get_countries),
+    path("admin/", admin.site.urls),
+    path("diseases/", wiki_views.disease_index),
+    path("lifetables/", hmd_views.get_life_table),
+    path("lifetable_years/", hmd_views.get_lifetable_years),
+    path("lifetables_countries/", hmd_views.get_countries),
 ]

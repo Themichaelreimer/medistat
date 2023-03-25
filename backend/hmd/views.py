@@ -27,28 +27,23 @@ def get_countries(request) -> JsonResponse:
     if result:
         return result
 
-    countries = Country.objects.all().values('id', 'name').order_by('name')
+    countries = Country.objects.all().values("id", "name").order_by("name")
     data = list(countries)
-    
-    result =  add_access_control_headers(JsonResponse(data, safe=False))
-    cache.set(key,result)
+
+    result = add_access_control_headers(JsonResponse(data, safe=False))
+    cache.set(key, result)
     return result
 
 
 @csrf_exempt
 def get_lifetable_years(request) -> JsonResponse:
-    country = request.POST.get('country')
+    country = request.POST.get("country")
     cache_key = f"lifetable_country_years"
     result = cache.get(cache_key)
     if result:
         return result
 
-    years = [x['year'] for x in LifeTable.objects
-                .filter(country__name=country)
-                .values('year')
-                .distinct()
-                .order_by('-year')
-                ]
+    years = [x["year"] for x in LifeTable.objects.filter(country__name=country).values("year").distinct().order_by("-year")]
 
     result = add_access_control_headers(JsonResponse(years, safe=False))
     cache.set(cache_key, result)
@@ -57,20 +52,19 @@ def get_lifetable_years(request) -> JsonResponse:
 
 @csrf_exempt
 def get_life_table(request) -> JsonResponse:
-    country = request.POST.get('country')
-    sex = request.POST.get('sex').lower()[0]
-    year = request.POST.get('year')
+    country = request.POST.get("country")
+    sex = request.POST.get("sex").lower()[0]
+    year = request.POST.get("year")
     cache_key = f"{country}{year}{sex}".lower()
     cache_key = "".join([c for c in cache_key if c in string.ascii_lowercase or c in string.digits])  # memcache keys are a little restrictive
 
-    life_table = LifeTable.objects.filter(
-        country__name=country,
-        year=year,
-        sex=sex,
-        age__lte=109
-    ).order_by('age').values('age', 'probability', 'cumulative_probability')
+    life_table = (
+        LifeTable.objects.filter(country__name=country, year=year, sex=sex, age__lte=109)
+        .order_by("age")
+        .values("age", "probability", "cumulative_probability")
+    )
     life_table = list(life_table)
 
-    result =  add_access_control_headers(JsonResponse(life_table, safe=False))
-    cache.set(cache_key,result)
+    result = add_access_control_headers(JsonResponse(life_table, safe=False))
+    cache.set(cache_key, result)
     return result
