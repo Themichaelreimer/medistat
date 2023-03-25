@@ -7953,10 +7953,9 @@ vuetify-loader@^1.7.0:
     file-loader "^6.2.0"
     loader-utils "^2.0.0"
 
-vuetify@^2.4.0:
-  version "2.4.5"
-  resolved "https://registry.npm.taobao.org/vuetify/download/vuetify-2.4.5.tgz"
-  integrity "sha1-ht4ZByDSVRHfm+N/88FqVoly/C0= sha512-P4bN9xwyU91Iq1iW/XBCzgVMQ9fHG0HgJeiPDRoHzC0fX6ZPYBZIN6xPCuoG7zLyGSSoc6JnQqnO7H5mPEsVuA=="
+vuetify@^2.6.10:
+  version "2.6.10"
+  resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-2.6.10.tgz#b86cd7a97bf8cd3828a72c349795b5b3c539ebc2"
 
 watchpack-chokidar2@^2.0.1:
   version "2.0.1"
