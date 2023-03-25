@@ -4,21 +4,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('hmd', '0001_initial'),
+        ("hmd", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='lifetable',
-            name='year',
+            model_name="lifetable",
+            name="year",
             field=models.IntegerField(default=0),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='country',
-            name='short_name',
+            model_name="country",
+            name="short_name",
             field=models.CharField(max_length=8),
         ),
     ]

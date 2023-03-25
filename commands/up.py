@@ -1,5 +1,10 @@
 import os
-from .common.docker_helpers import detect_docker_compose_command, ensure_env_file_exists, get_docker_project_name
+from .common.docker_helpers import (
+    detect_docker_compose_command,
+    ensure_env_file_exists,
+    get_docker_project_name,
+)
+
 
 def run():
     ensure_env_file_exists()

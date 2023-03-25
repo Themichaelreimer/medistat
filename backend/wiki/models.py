@@ -7,24 +7,26 @@ from django.db import models
     'multiple values from different sources' model
 """
 
+
 class Article(models.Model):
     """
-        This class represents an article post parsing HTML, but with no other processing yet
+    This class represents an article post parsing HTML, but with no other processing yet
     """
+
     title = models.CharField(default="", max_length=128, unique=True)
     first_sentence = models.TextField(default="")
     text = models.TextField(default="")
-    disease = models.ForeignKey('WikiDisease', null=True, default=None, on_delete=models.SET_NULL)
+    disease = models.ForeignKey("WikiDisease", null=True, default=None, on_delete=models.SET_NULL)
 
 
 class WikiFrequency(models.Model):
-    region_name = models.CharField(default='', max_length=255)
+    region_name = models.CharField(default="", max_length=255)
     frequency_int = models.BigIntegerField(null=True)
     frequency_ratio = models.FloatField(null=True)
 
     def display_value(self):
         val = self.frequency_ratio if self.frequency_ratio else self.frequency_int / 7500000000
-        return unit_rule(100*val)
+        return unit_rule(100 * val)
 
     def __str__(self):
         if self.frequency_int:
@@ -33,13 +35,13 @@ class WikiFrequency(models.Model):
 
 
 class WikiDeath(models.Model):
-    region_name = models.CharField(default='', max_length=255)
+    region_name = models.CharField(default="", max_length=255)
     frequency_int = models.BigIntegerField(null=True)
     frequency_ratio = models.FloatField(null=True)
 
     def display_value(self):
         val = self.frequency_ratio if self.frequency_ratio else self.frequency_int / 7500000000
-        return unit_rule(100*val)
+        return unit_rule(100 * val)
 
     def __str__(self):
         if self.frequency_int:
@@ -48,7 +50,7 @@ class WikiDeath(models.Model):
 
 
 class WikiCaseFatalityRate(models.Model):
-    region_name = models.CharField(default='', max_length=255)
+    region_name = models.CharField(default="", max_length=255)
     frequency_int = models.BigIntegerField(null=True)
     frequency_ratio = models.FloatField(null=True)
 
@@ -59,14 +61,14 @@ class WikiCaseFatalityRate(models.Model):
 
 
 class WikiMortalityRate(models.Model):
-    region_name = models.CharField(default='', max_length=255)
+    region_name = models.CharField(default="", max_length=255)
     frequency_int = models.BigIntegerField(null=True)
     frequency_ratio = models.FloatField(null=True)
 
     def display_value(self):
         if self.frequency_ratio:
-            return f'{self.frequency_ratio*100} %'
-        return f'{self.frequency_int * 100 / 7500000000} %'
+            return f"{self.frequency_ratio*100} %"
+        return f"{self.frequency_int * 100 / 7500000000} %"
 
     def __str__(self):
         if self.frequency_int:
@@ -132,13 +134,14 @@ class WikiCause(models.Model):
 
 class WikiDisease(models.Model):
     """
-        This class represents the 'endpoint' in the wikipedia parsing pipeline. Entries in this table 
-        are considered complete.
-        
-        I expect almost all the many to many's to have at most one entry, but it was
-        designed this way to handle potentially conflicting information. It IS Wikipedia
-        after all. And then I might be able to extend this model for pubmed too
+    This class represents the 'endpoint' in the wikipedia parsing pipeline. Entries in this table
+    are considered complete.
+
+    I expect almost all the many to many's to have at most one entry, but it was
+    designed this way to handle potentially conflicting information. It IS Wikipedia
+    after all. And then I might be able to extend this model for pubmed too
     """
+
     name = models.CharField(default="", max_length=255, unique=True)
     other_names = models.TextField(default="")
     icd10 = models.CharField(null=True, max_length=64)
@@ -154,14 +157,13 @@ class WikiDisease(models.Model):
     diagnostic_methods = models.ManyToManyField(WikiDiagnosticMethod)
     medications = models.ManyToManyField(WikiMedication)
     causes = models.ManyToManyField(WikiCause)
-    #duration? usual onset? types?
+    # duration? usual onset? types?
     # TODO: Differential Diagnosis should be scrapable
 
     def __str__(self):
         return self.name
 
     def to_dict(self):
-
         specialty = self.specialty.all().first()
         frequency = self.frequency
         deaths = self.deaths
@@ -172,16 +174,16 @@ class WikiDisease(models.Model):
             mortality_rate = deaths.frequency_int / frequency.frequency_int
             mortality_rate = unit_rule(100 * mortality_rate)
         else:
-            mortality_rate = 'Unknown'
+            mortality_rate = "Unknown"
 
         return {
-            'id': self.id,
-            'name': self.name,
-            'icd10': self.icd10,
-            'specialty': specialty.name if specialty else 'Unknown',
-            'frequency': frequency.display_value() if frequency else 'Unknown',
-            'deaths': deaths.display_value() if deaths else 'Unknown',
-            'mortality_rate': mortality_rate
+            "id": self.id,
+            "name": self.name,
+            "icd10": self.icd10,
+            "specialty": specialty.name if specialty else "Unknown",
+            "frequency": frequency.display_value() if frequency else "Unknown",
+            "deaths": deaths.display_value() if deaths else "Unknown",
+            "mortality_rate": mortality_rate,
         }
 
     def print(self):
@@ -205,12 +207,10 @@ class WikiDisease(models.Model):
 def unit_rule(val) -> str:
     if val == 0:
         return "0.0000 %"
-    if val < 1E-8:
+    if val < 1e-8:
         return f"{round(val*1E9,4)} n%"
-    if val < 1E-5:
+    if val < 1e-5:
         return f"{round(val*1E6,4)} µ%"
-    if val < 1E-2:
+    if val < 1e-2:
         return f"{round(val*1E3,4)} m%"
     return f"{round(val,4)} %"
-
-

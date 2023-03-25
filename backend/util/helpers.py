@@ -15,4 +15,3 @@ def is_int(text: str) -> bool:
         return True
     except:
         return False
-

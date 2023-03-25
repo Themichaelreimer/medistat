@@ -4,19 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('wiki', '0001_initial'),
+        ("wiki", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='wikidisease',
-            name='specialty',
+            model_name="wikidisease",
+            name="specialty",
         ),
         migrations.AddField(
-            model_name='wikidisease',
-            name='specialty',
-            field=models.ManyToManyField(to='wiki.WikiSpecialty'),
+            model_name="wikidisease",
+            name="specialty",
+            field=models.ManyToManyField(to="wiki.WikiSpecialty"),
         ),
     ]

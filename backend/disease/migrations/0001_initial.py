@@ -6,83 +6,188 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='CategoryType',
+            name="CategoryType",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(choices=[('symptom', 'symptom'), ('treatment', 'treatment')], max_length=255)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        choices=[("symptom", "symptom"), ("treatment", "treatment")],
+                        max_length=255,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'category_type',
+                "db_table": "category_type",
             },
         ),
         migrations.CreateModel(
-            name='Citation',
+            name="Citation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('source_name', models.CharField(max_length=255)),
-                ('link', models.TextField(default='')),
-                ('timestamp', models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("source_name", models.CharField(max_length=255)),
+                ("link", models.TextField(default="")),
+                ("timestamp", models.DateTimeField(default=django.utils.timezone.now)),
             ],
             options={
-                'db_table': 'statistic_citation',
+                "db_table": "statistic_citation",
             },
         ),
         migrations.CreateModel(
-            name='Disease',
+            name="Disease",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(default='', max_length=255, unique=True)),
-                ('other_names', models.TextField(default='')),
-                ('icd10', models.CharField(max_length=64, null=True)),
-                ('differential_diagnosis', models.ManyToManyField(to='disease.Disease')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(default="", max_length=255, unique=True)),
+                ("other_names", models.TextField(default="")),
+                ("icd10", models.CharField(max_length=64, null=True)),
+                (
+                    "differential_diagnosis",
+                    models.ManyToManyField(to="disease.Disease"),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='StatisticType',
+            name="StatisticType",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
             ],
             options={
-                'db_table': 'statistic_type',
+                "db_table": "statistic_type",
             },
         ),
         migrations.CreateModel(
-            name='Statistic',
+            name="Statistic",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.DecimalField(decimal_places=5, max_digits=10)),
-                ('citation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='disease.citation')),
-                ('disease', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='disease.disease')),
-                ('statistic_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='disease.statistictype')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("value", models.DecimalField(decimal_places=5, max_digits=10)),
+                (
+                    "citation",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="disease.citation",
+                    ),
+                ),
+                (
+                    "disease",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="disease.disease",
+                    ),
+                ),
+                (
+                    "statistic_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="disease.statistictype",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'statistic',
+                "db_table": "statistic",
             },
         ),
         migrations.CreateModel(
-            name='CategoricalValue',
+            name="CategoricalValue",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.CharField(default='', max_length=255)),
-                ('category_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='disease.categorytype')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("value", models.CharField(default="", max_length=255)),
+                (
+                    "category_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="disease.categorytype",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='CategoricalTag',
+            name="CategoricalTag",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('categorical_value', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='disease.categoricalvalue')),
-                ('citation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='disease.citation')),
-                ('disease', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='disease.disease')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "categorical_value",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="disease.categoricalvalue",
+                    ),
+                ),
+                (
+                    "citation",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="disease.citation",
+                    ),
+                ),
+                (
+                    "disease",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="disease.disease",
+                    ),
+                ),
             ],
         ),
     ]
