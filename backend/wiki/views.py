@@ -2,13 +2,14 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+
 # Create your views here.
 
 import wiki.business as business
 
+
 @csrf_exempt
 def disease_index(request):
-
     diseases = business.get_diseases_list()
     response = JsonResponse(diseases, safe=False)
 

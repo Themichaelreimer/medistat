@@ -15,7 +15,8 @@ from .common.docker_helpers import get_docker_container_ids_by_name
 """
 
 
-EXPECTED_CONTAINER_NAME='backend'
+EXPECTED_CONTAINER_NAME = "backend"
+
 
 def run():
     args = sys.argv[1:]
@@ -25,10 +26,13 @@ def run():
     status_code = os.system(f'docker exec {container_id} /bin/bash -c "{load_venv} && {cmd}"')
 
     # Exit code here has an extra byte of info - gets the actual exit code via bitshifting
-    status_code = os.WEXITSTATUS(status_code)  
+    status_code = os.WEXITSTATUS(status_code)
     exit(status_code)  # Command exit code is needed for GitHub Actions
+
 
 def get_backend_container_id() -> str:
     matching_containers = get_docker_container_ids_by_name(EXPECTED_CONTAINER_NAME)
-    assert len(matching_containers) == 1, f"There should be exactly 1 backend container. Found `{matching_containers}`. Are you sure your containers are runnning? Consider renaming a container."
+    assert (
+        len(matching_containers) == 1
+    ), f"There should be exactly 1 backend container. Found `{matching_containers}`. Are you sure your containers are runnning? Consider renaming a container."
     return matching_containers[0]

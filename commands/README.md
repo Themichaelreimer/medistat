@@ -2,11 +2,11 @@
 
 This folder contains the project's management commands. These commands are run via:
 
->>> python3 manager.py [COMMAND_NAME]
+    python3 manager.py [COMMAND_NAME]
 
 where `COMMAND_NAME` is the name of a file in this directory ending in `.py`, without the `.py`. For example, the following runs the `run()` function of `build.py`:
 
->>> python3 manager.py build
+    python3 manager.py build
 
 # Notes
 

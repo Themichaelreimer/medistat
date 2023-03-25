@@ -5,7 +5,8 @@ from django.core.cache import cache
 from wiki.query import *
 
 
-#region scraper
+# region scraper
+
 
 def is_float(text: str) -> bool:
     try:
@@ -30,7 +31,7 @@ def pre_process_string(text: str) -> str:
     :return: output
     """
     text = text.strip().lower()
-    return re.sub(r'(\[.*\])', r'', text)
+    return re.sub(r"(\[.*\])", r"", text)
 
 
 def __extract_objects(comma_seperated_list: str, function) -> list:
@@ -41,12 +42,12 @@ def __extract_objects(comma_seperated_list: str, function) -> list:
     :param function: function that maps a token to an object
     :return: list of objects
     """
-    props = comma_seperated_list.split(',')
+    props = comma_seperated_list.split(",")
     objs = [function(pre_process_string(x)) for x in props]
     return objs
 
 
-def __combine_adjacent_numbers(tokens:List[str]) -> List[str]:
+def __combine_adjacent_numbers(tokens: List[str]) -> List[str]:
     """
     Given a list of tokens, if any two adjacent tokens are numbers, they are combined by multiplication
     :param tokens: Tokenized string
@@ -59,8 +60,8 @@ def __combine_adjacent_numbers(tokens:List[str]) -> List[str]:
             skip_next = False
             continue
 
-        if i+1 < len(tokens) and is_float(token) and is_float(tokens[i+1]):
-            result.append(float(token) * float(tokens[i+1]))
+        if i + 1 < len(tokens) and is_float(token) and is_float(tokens[i + 1]):
+            result.append(float(token) * float(tokens[i + 1]))
             skip_next = True
         else:
             result.append(token)
@@ -76,7 +77,7 @@ def __try_recognise_ratio(text: str) -> Union[float, None]:
     """
     # Maybe use this regex? \d+\.?\d* ?(per|\/)? ?\d+
 
-    input = re.sub(r",|'", r'', pre_process_string(text))
+    input = re.sub(r",|'", r"", pre_process_string(text))
     input = re.sub(r"thousand", r"1000 ", input)
     input = re.sub(r"million", r"1000000 ", input)
     input = re.sub(r"billion", r"1000000000 ", input)
@@ -91,7 +92,7 @@ def __try_recognise_ratio(text: str) -> Union[float, None]:
     should_divide = False
 
     for token in tokens:
-        if token in ['per', '/', 'in']:
+        if token in ["per", "/", "in"]:
             should_divide = True
             continue
         if is_float(token):
@@ -99,7 +100,7 @@ def __try_recognise_ratio(text: str) -> Union[float, None]:
                 numerator = token
             elif should_divide:
                 denominator = token
-                return float(numerator)/float(denominator)  # Greedy detect first fraction
+                return float(numerator) / float(denominator)  # Greedy detect first fraction
 
     if numerator:
         if is_int(numerator):
@@ -107,131 +108,131 @@ def __try_recognise_ratio(text: str) -> Union[float, None]:
         return float(numerator)
 
 
-def create_article(params: dict) -> 'Article':
+def create_article(params: dict) -> "Article":
     return ensure_article(params)
 
 
-def handle_infobox(params: dict) -> 'WikiDisease':
+def handle_infobox(params: dict) -> "WikiDisease":
     disease = {}
 
-    name = params.get('name')
-    disease['name'] = name
+    name = params.get("name")
+    disease["name"] = name
 
-    other_names = params.get('other_names')
-    disease['other_names'] = other_names
+    other_names = params.get("other_names")
+    disease["other_names"] = other_names
 
-    icd10 = params.get('ICD-10')
+    icd10 = params.get("ICD-10")
     if not icd10:
-        icd10 = params.get('icd-10')
+        icd10 = params.get("icd-10")
     if icd10:
-        disease['icd10'] = icd10
+        disease["icd10"] = icd10
 
-    specialty = params.get('specialty')
+    specialty = params.get("specialty")
     if specialty:
-        disease['specialty'] = __extract_objects(specialty, ensure_speciality)
+        disease["specialty"] = __extract_objects(specialty, ensure_speciality)
 
-    frequency = params.get('frequency')
+    frequency = params.get("frequency")
     if frequency:
         val = None
         freq = __try_recognise_ratio(frequency)
         if type(freq) == int:
-            val = ensure_frequency({'frequency_int': freq})
+            val = ensure_frequency({"frequency_int": freq})
         if type(freq) == float:
-            val = ensure_frequency({'frequency_ratio': freq})
+            val = ensure_frequency({"frequency_ratio": freq})
         if val:
-            disease['frequency'] = val
+            disease["frequency"] = val
 
-    mortality_rate = params.get('mortality rate')
+    mortality_rate = params.get("mortality rate")
     if mortality_rate:
         val = None
         freq = __try_recognise_ratio(mortality_rate)
         if type(freq) == int:
-            val = ensure_mortality_rate({'frequency_int': freq})
+            val = ensure_mortality_rate({"frequency_int": freq})
         if type(freq) == float:
-            val = ensure_mortality_rate({'frequency_ratio': freq})
+            val = ensure_mortality_rate({"frequency_ratio": freq})
         if val:
-            """ If survival was reported instead of mortality, invert the statistic """
+            """If survival was reported instead of mortality, invert the statistic"""
             if "survival" in mortality_rate:
                 val = 1 - val
-            disease['mortality_rate'] = val
+            disease["mortality_rate"] = val
 
-    cfr = params.get('case fatality rate')
+    cfr = params.get("case fatality rate")
     if cfr:
         val = None
         freq = __try_recognise_ratio(cfr)
         if type(freq) == int:
-            val = ensure_case_fatality_rate({'frequency_int': freq})
+            val = ensure_case_fatality_rate({"frequency_int": freq})
         if type(freq) == float:
-            val = ensure_case_fatality_rate({'frequency_ratio': freq})
+            val = ensure_case_fatality_rate({"frequency_ratio": freq})
         if val:
-            disease['case_fatality_rate'] = val
+            disease["case_fatality_rate"] = val
 
-    deaths = params.get('deaths')
+    deaths = params.get("deaths")
     if deaths:
         val = None
         freq = __try_recognise_ratio(deaths)
         if type(freq) == int:
-            val = ensure_deaths({'frequency_int': freq})
+            val = ensure_deaths({"frequency_int": freq})
         if type(freq) == float:
-            val = ensure_deaths({'frequency_ratio': freq})
+            val = ensure_deaths({"frequency_ratio": freq})
         if val:
-            disease['deaths'] = val
+            disease["deaths"] = val
 
     # Try infer mortality rate from frequency and deaths
-    if not disease.get('mortality_rate'):
-        if type(disease.get('deaths')) == int and type(disease.get('frequency')) == int and not (disease.get('deaths') == 0):
-            disease['mortality_rate'] = disease.get('frequency') / disease.get('deaths')
+    if not disease.get("mortality_rate"):
+        if type(disease.get("deaths")) == int and type(disease.get("frequency")) == int and not (disease.get("deaths") == 0):
+            disease["mortality_rate"] = disease.get("frequency") / disease.get("deaths")
 
-    symptoms = params.get('symptoms')
+    symptoms = params.get("symptoms")
     if symptoms:
-        disease['symptoms'] = __extract_objects(symptoms, ensure_symptom)
+        disease["symptoms"] = __extract_objects(symptoms, ensure_symptom)
 
-    risks = params.get('risk factors')
+    risks = params.get("risk factors")
     if risks:
-        disease['risk_factors'] = __extract_objects(risks, ensure_risk_factor)
+        disease["risk_factors"] = __extract_objects(risks, ensure_risk_factor)
 
-    treatments = params.get('treatment')
+    treatments = params.get("treatment")
     if treatments:
-        disease['treatments'] = __extract_objects(treatments, ensure_treatment)
+        disease["treatments"] = __extract_objects(treatments, ensure_treatment)
 
-    preventions = params.get('prevention')
+    preventions = params.get("prevention")
     if preventions:
-        disease['preventions'] = __extract_objects(preventions, ensure_prevention)
+        disease["preventions"] = __extract_objects(preventions, ensure_prevention)
 
-    diagnostic_methods = params.get('diagnostic methods')
+    diagnostic_methods = params.get("diagnostic methods")
     if diagnostic_methods:
-        disease['diagnostic_methods'] = __extract_objects(diagnostic_methods, ensure_diagnostic_method)
+        disease["diagnostic_methods"] = __extract_objects(diagnostic_methods, ensure_diagnostic_method)
 
-    medications = params.get('medication')
+    medications = params.get("medication")
     if medications:
-        disease['medications'] = __extract_objects(medications, ensure_medication)
+        disease["medications"] = __extract_objects(medications, ensure_medication)
 
-    causes = params.get('causes')
+    causes = params.get("causes")
     if causes:
-        disease['causes'] = __extract_objects(causes, ensure_cause)
+        disease["causes"] = __extract_objects(causes, ensure_cause)
 
     return make_disease(disease)
 
-#endregion
+
+# endregion
 
 
 def get_disease_info(disease: WikiDisease) -> dict:
-
     result = {
-        'name': disease.name,
-        'other_names': disease.other_names,
-        'icd10': disease.icd10,
-        'specialty': [x for x in disease.specialty.all()],
-        'frequency': disease.frequency,
-        'mortality_rate': disease.mortality_rate,
-        'deaths': disease.deaths,
-        'symptoms': [x for x in disease.symptoms.all()],
-        'risk_factors': [x for x in disease.risk_factors.all()],
-        'treatments': [x for x in disease.treatments.all()],
-        'preventions': [x for x in disease.preventions.all()],
-        'diagnostic_methods': [x for x in disease.diagnostic_methods.all()],
-        'medications': [x for x in disease.medications.all()],
-        'causes': [x for x in disease.causes.all()]
+        "name": disease.name,
+        "other_names": disease.other_names,
+        "icd10": disease.icd10,
+        "specialty": [x for x in disease.specialty.all()],
+        "frequency": disease.frequency,
+        "mortality_rate": disease.mortality_rate,
+        "deaths": disease.deaths,
+        "symptoms": [x for x in disease.symptoms.all()],
+        "risk_factors": [x for x in disease.risk_factors.all()],
+        "treatments": [x for x in disease.treatments.all()],
+        "preventions": [x for x in disease.preventions.all()],
+        "diagnostic_methods": [x for x in disease.diagnostic_methods.all()],
+        "medications": [x for x in disease.medications.all()],
+        "causes": [x for x in disease.causes.all()],
     }
     return result
 
@@ -245,7 +246,7 @@ def get_diseases_list():
     result = cache.get(cache_key)
     if result:
         return result
-    
+
     result = [x.to_dict() for x in get_nonempty_diseases()]
     cache.set(cache_key, result)
     return result

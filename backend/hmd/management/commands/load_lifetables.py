@@ -4,42 +4,41 @@ from hmd.models import *
 import os
 from typing import List, Tuple
 
-FILE_NAMES = ['fltper_1x1.txt', 'mltper_1x1.txt']
+FILE_NAMES = ["fltper_1x1.txt", "mltper_1x1.txt"]
 
 
 def extract_row(text: str) -> list:
-    return [x for x in text.split(' ') if x]
+    return [x for x in text.split(" ") if x]
 
 
 def get_sex(text: str) -> str:
-    ''' returns m or f based on input, which should be a file name '''
+    """returns m or f based on input, which should be a file name"""
     if "flt" in text:
-        return 'f'
-    if 'mlt' in text:
-        return 'm'
+        return "f"
+    if "mlt" in text:
+        return "m"
 
 
 class Command(BaseCommand):
-    help = 'Loads HMD life tables into database. Calculates cumulative along the way'
+    help = "Loads HMD life tables into database. Calculates cumulative along the way"
 
     def handle(self, *args, **options):
-        path = os.path.join('data', 'hmd_countries') # Next is country, then 'STATS', then FILE_NAME
+        path = os.path.join("data", "hmd_countries")  # Next is country, then 'STATS', then FILE_NAME
         folders = os.listdir(path)
         for folder in folders:
             for file_name in FILE_NAMES:
-
-                file_path = os.path.join(path, folder, 'STATS', file_name)
+                file_path = os.path.join(path, folder, "STATS", file_name)
 
                 if os.path.isfile(file_path):
                     try:
                         self.process_life_table(file_path, str(folder))
                     except Exception as e:
-                        print(f'type({e}) - {e}')
+                        print(f"type({e}) - {e}")
 
     def process_life_table(self, path, short_name: str):
         with open(path, "r") as file:
             rows = file.readlines()
-            country_name = rows[0].split(',')[0]
+            country_name = rows[0].split(",")[0]
             country = self.ensure_country(country_name, short_name)
             sex = get_sex(path)
 
@@ -49,24 +48,24 @@ class Command(BaseCommand):
                 age = row[1]
 
                 probability = row[3]
-                if probability == '.':
+                if probability == ".":
                     probability = 100
 
-                if row[5] == '.':
+                if row[5] == ".":
                     p_alive = 0
                 else:
-                    p_alive = int(row[5])/100000
+                    p_alive = int(row[5]) / 100000
 
-                if '+' in age:
+                if "+" in age:
                     age = age[0:-1]
 
                 params = {
-                    'country': country,
-                    'sex': sex,
-                    'year': year,
-                    'age': age,
-                    'probability': probability,
-                    'cumulative_probability': p_alive
+                    "country": country,
+                    "sex": sex,
+                    "year": year,
+                    "age": age,
+                    "probability": probability,
+                    "cumulative_probability": p_alive,
                 }
 
                 self.ensure_life_table_entry(params)
@@ -78,11 +77,9 @@ class Command(BaseCommand):
 
     @staticmethod
     def ensure_life_table_entry(params: dict):
-        '''
+        """
         Takes: country,sex,age,year,probability,cumulative_probability
         :param params: dict with the above keys
         :return: None
-        '''
+        """
         LifeTable.objects.get_or_create(**params)
-
-
