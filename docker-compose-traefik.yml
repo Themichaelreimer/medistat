@@ -1,0 +1,20 @@
+version: '3'
+services:
+  reverse-proxy:
+    image: traefik:v2.9
+    command: 
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/traefik.yml:/etc/traefik/traefik.yml
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.reverseproxy.rule=Host(`traefik.${HOST}`)
+      - traefik.http.routers.reverseproxy.entrypoints=web,secure
+      

@@ -1,0 +1,12 @@
+providers:
+  docker:
+    defaultRule: "Host(`{{ trimPrefix `/` .Name }}.docker.localhost`)"
+
+entryPoints:
+  web:
+    address: ":80"
+  secure:
+    address: ":443"
+
+api:
+  insecure: true
