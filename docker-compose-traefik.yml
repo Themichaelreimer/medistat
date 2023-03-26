@@ -17,4 +17,10 @@ services:
       - traefik.enable=true
       - traefik.http.routers.reverseproxy.rule=Host(`traefik.${HOST}`)
       - traefik.http.routers.reverseproxy.entrypoints=web,secure
-      
+    networks:
+      - backend
+networks:
+  backend:
+    name: ${PROJECT_NAME}_backend
+    external: true
+    #driver: bridge
