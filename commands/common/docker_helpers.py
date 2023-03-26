@@ -4,6 +4,9 @@ import subprocess
 import re
 from typing import List, Dict
 
+# The traefik container is managed seperately from docker-compose, because we have multiple copies of
+# our docker-compose stack running on the same server, but there needs to be no more than 1 traefik instance
+TRAEFIK_CONTAINER_NAME = 'traefik'
 
 def bash(cmd: str) -> int:
     """
@@ -75,11 +78,17 @@ def ensure_env_file_exists():
         bash("cp config/sample.env .env")
 
 
-def get_containers_map() -> Dict[str, docker.models.containers.Container]:
+def get_containers_map(filter_by_project_name:bool=True) -> Dict[str, docker.models.containers.Container]:
     """
     Returns a dict mapping container_name -> container object
+    :param filter_by_project_name: Whether to only consider containers with the project name currently defined
+    in your .env file. Default is True
+    :return: A dict mapping container_name -> container_object
     """
     project_name = get_docker_project_name()
     cli = docker.from_env()
-    containers = cli.containers.list(filters={"name": project_name})
+
+    filters = {"name": project_name} if filter_by_project_name else {}
+
+    containers = cli.containers.list(filters=filters)
     return {x.name: x for x in containers}
