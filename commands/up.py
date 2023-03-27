@@ -17,4 +17,4 @@ def run():
     os.system(f'bash -c "{command} -f docker-compose.yml -p {project_name} up -d"')
 
     # Traefik reverse proxy
-    os.system(f'bash -c "{command} -f docker-compose-traefik.yml -p traefik up -d"')
+    os.system(f'bash -c "{command} -f docker-compose-traefik.yml -p {project_name} up -d"')

@@ -15,4 +15,4 @@ def run():
     os.system(f'bash -c "{command} -f docker-compose.yml -p {project_name} down"')
 
     # Traefik reverse proxy - need to only have one copy on one machine, that gets used by all copies of the stack
-    os.system(f'bash -c "{command} -f docker-compose-traefik.yml -p traefik down"')
+    os.system(f'bash -c "{command} -f docker-compose-traefik.yml -p {project_name} down"')

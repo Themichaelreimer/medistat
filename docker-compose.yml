@@ -80,6 +80,9 @@ services:
       start_period: 30s
     networks:
       - backend
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
     labels:
       - traefik.enable=true
       - traefik.http.routers.grafana.rule=Host(`grafana.${HOST}`)
