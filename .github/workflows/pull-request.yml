@@ -38,4 +38,4 @@ jobs:
 
 concurrency:
   group: pr_pipeline_${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  cancel-in-progress: false
