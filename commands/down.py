@@ -1,10 +1,5 @@
 import os
-from .common.docker_helpers import (
-    detect_docker_compose_command,
-    get_docker_project_name,
-    get_containers_map,
-    TRAEFIK_CONTAINER_NAME
-)
+from .common.docker_helpers import detect_docker_compose_command, get_docker_project_name, get_containers_map, TRAEFIK_CONTAINER_NAME
 
 
 def run():
@@ -16,4 +11,3 @@ def run():
 
     # Main stack
     os.system(f'bash -c "{command} -f docker-compose.yml -p {project_name} down"')
-

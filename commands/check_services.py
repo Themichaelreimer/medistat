@@ -42,11 +42,11 @@ def run():
     print("All services are running and healthy!")
 
 
-def get_file_contents(compose_file_name:str) -> dict:
+def get_file_contents(compose_file_name: str) -> dict:
     """
-        Returns the docker compose file contents as a dict
-        :param compose_file_name: file name of docker compose file. Must be relative to project root
-        :return: file contents as dict
+    Returns the docker compose file contents as a dict
+    :param compose_file_name: file name of docker compose file. Must be relative to project root
+    :return: file contents as dict
     """
     with open(compose_file_name) as file:
         return yaml.load(file, Loader=yaml.CLoader)

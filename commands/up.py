@@ -4,8 +4,8 @@ from .common.docker_helpers import (
     ensure_env_file_exists,
     get_docker_project_name,
     get_containers_map,
-    TRAEFIK_CONTAINER_NAME
-    )
+    TRAEFIK_CONTAINER_NAME,
+)
 
 
 def run():

@@ -27,12 +27,12 @@ SECRET_KEY = "*j0rudf=32cn+_)bw+r9j7wo)&q40r0-k5dlml5i278en%yz10"
 DEBUG = os.environ.get("DEBUG", False)
 
 ALLOWED_HOSTS = [
-    "127.0.0.1", 
-    "localhost", 
+    "127.0.0.1",
+    "localhost",
     "backend.localhost",
     "backend.medistat.online",
     "backend.staging.medistat.online",
-    "api.medistat.online"
+    "api.medistat.online",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True  # Just to check the CORS module is even working
@@ -150,16 +150,16 @@ USE_TZ = True
 STATIC_URL = "/static/"
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'stream': sys.stdout,
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
     },
 }
