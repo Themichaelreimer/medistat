@@ -1,3 +1,7 @@
+api:
+  dashboard: true
+  insecure: true
+
 providers:
   docker:
     defaultRule: "Host(`{{ trimPrefix `/` .Name }}.docker.localhost`)"
@@ -7,6 +11,20 @@ entryPoints:
     address: ":80"
   secure:
     address: ":443"
+#  asdf:
+#    address: ":8080"
 
-api:
-  insecure: true
+log:
+  level: DEBUG 
+
+http:
+  routers:
+    traefik:
+      middlewares: "basicauth"
+  middlewares:
+    basicauth:
+      basicAuth:
+        removeHeader: true
+        users:
+          - test:$apr1$H6uskkkW$IgXLP6ewTrSuBkTrqE8wj/
+

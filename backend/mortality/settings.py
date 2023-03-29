@@ -31,7 +31,7 @@ ALLOWED_HOSTS = [
     "localhost", 
     "backend.localhost",
     "backend.medistat.online",
-    "backup.staging.medistat.online",
+    "backend.staging.medistat.online",
     "api.medistat.online"
 ]
 
