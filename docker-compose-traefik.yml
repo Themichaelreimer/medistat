@@ -16,10 +16,10 @@ services:
       - ./config/traefik.yml:/etc/traefik/traefik.yml
     labels:
       - traefik.enable=true
-      - traefik.http.routers.reverseproxy.rule=Host(`traefik.${HOST}`)
-      - traefik.http.routers.reverseproxy.entrypoints=web,secure,asdf
+      - traefik.http.routers.reverseproxy_${PROJECT_NAME}.rule=Host(`traefik.${HOST}`)
+      - traefik.http.routers.reverseproxy_${PROJECT_NAME}.entrypoints=web,secure
 #      - traefik.http.routers.reverseproxy.middlewares=auth
-      - traefik.http.services.reverseproxy.loadbalancer.server.port=8080
+      - traefik.http.services.reverseproxy_${PROJECT_NAME}.loadbalancer.server.port=8080
       - traefik.http.middlewares.auth.basicauth.usersfile=/etc/traefik/traefik.auth
 #      - traefik.http.middlewares.auth.basicauth.users=${TRAEFIK_AUTH_STR}
 #      - traefik.http.middlewares.auth.basicauth.headerField=X-WebAuth-User

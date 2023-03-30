@@ -21,9 +21,9 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.backend.rule=Host(`backend.${HOST}`)
-      - traefik.http.routers.backend.entrypoints=web,secure
-      - traefik.http.services.backend.loadbalancer.server.port=80
+      - traefik.http.routers.backend_${PROJECT_NAME}.rule=Host(`backend.${HOST}`)
+      - traefik.http.routers.backend_${PROJECT_NAME}.entrypoints=web,secure
+      - traefik.http.services.backend_${PROJECT_NAME}.loadbalancer.server.port=80
 
   frontend:
     hostname: ${PROJECT_NAME}_frontend
@@ -38,9 +38,9 @@ services:
       start_period: 10s
     labels:
       - traefik.enable=true
-      - traefik.http.routers.frontend.rule=Host(`${HOST}`)
-      - traefik.http.routers.frontend.entrypoints=web,secure
-      - traefik.http.services.frontend.loadbalancer.server.port=80
+      - traefik.http.routers.frontend_${PROJECT_NAME}.rule=Host(`${HOST}`)
+      - traefik.http.routers.frontend_${PROJECT_NAME}.entrypoints=web,secure
+      - traefik.http.services.frontend_${PROJECT_NAME}.loadbalancer.server.port=80
 
   postgres:
     hostname: ${PROJECT_NAME}_postgres
@@ -85,9 +85,9 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.grafana.rule=Host(`grafana.${HOST}`)
-      - traefik.http.routers.grafana.entrypoints=web,secure
-      - traefik.http.services.grafana.loadbalancer.server.port=3000
+      - traefik.http.routers.grafana_${PROJECT_NAME}.rule=Host(`grafana.${HOST}`)
+      - traefik.http.routers.grafana_${PROJECT_NAME}.entrypoints=web,secure
+      - traefik.http.services.grafana_${PROJECT_NAME}.loadbalancer.server.port=3000
 
   redis:
     hostname: ${PROJECT_NAME}_redis
