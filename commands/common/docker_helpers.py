@@ -55,7 +55,7 @@ def get_docker_compose_version() -> str:
     raise Exception(f"Could not parse output of {''.join(command_tokens)}: {version_output}")
 
 
-def get_docker_container_ids_by_name(name: str) -> List[str]:
+def get_docker_container_ids_by_name(name: str, filter_by_project_name:bool=True) -> List[str]:
     """
     Returns the ids of the containers that contain `name` as a substring.
     :param name: All containers returned will have `name` as a substring
@@ -66,7 +66,9 @@ def get_docker_container_ids_by_name(name: str) -> List[str]:
 
     # list will only allow us to filter by one condition at a time, but we need two.
     containers = cli.containers.list(filters={"name": name})
-    return [x.id for x in containers if project_name in x.name]
+    if filter_by_project_name:
+        return [x.id for x in containers if re.match(f'{project_name}[_-]{name}[_-]\d', x.name)]
+    return [x.id for x in containers]
 
 
 def ensure_env_file_exists():
