@@ -39,13 +39,12 @@ def run():
 
             container = containers[expected_container_name]
             check_container_state(container)
-    
+
     # The reverse proxy might not be running on this stack - it's "universal", so that one container services all stacks
-    reverse_proxy = get_docker_containers_by_name('reverse-proxy')
+    reverse_proxy = get_docker_containers_by_name("reverse-proxy")
     assert len(reverse_proxy) == 1, "There should be exactly one container named `reverse-proxy`"
     reverse_proxy = reverse_proxy[0]
     check_container_state(reverse_proxy)
-
 
     print("All services are running and healthy!")
 
