@@ -3,7 +3,7 @@ from .common.docker_helpers import (
     detect_docker_compose_command,
     ensure_env_file_exists,
     get_docker_project_name,
-    get_containers_map,
+    get_docker_container_ids_by_name,
     TRAEFIK_CONTAINER_NAME,
 )
 
@@ -17,4 +17,5 @@ def run():
     os.system(f'bash -c "{command} -f docker-compose.yml -p {project_name} up -d"')
 
     # Traefik reverse proxy
-    os.system(f'bash -c "{command} -f docker-compose-traefik.yml -p {project_name} up -d"')
+    if not get_docker_container_ids_by_name('traefik'):
+        os.system(f'bash -c "{command} -f docker-compose-traefik.yml -p {project_name} up -d"')
