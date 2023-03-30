@@ -8,13 +8,12 @@ on:
 jobs:
   setup:
     runs-on: ['self-hosted', 'cd']
+    defaults:
+      run:
+        working-directory: ~/medistat
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v3
-        with:
-          clean: 'true'
-          submodules: 'false'
-          fetch-depth: 1
+        run: git pull
 
       - name: "Install Requirements"
         run: |
