@@ -25,9 +25,6 @@ export function postRequest(url, data, callback){
 
 function getBackendURL(){
   const hostname = window.location.host;
-  const targetProdAnyway = true;
-  if(hostname === 'medistat.online' || targetProdAnyway){
-    return "https://api.medistat.online/";
-  }
-  return "http:127.0.0.1:8000/";
+  const protocol = location.protocol;
+  return protocol + '//backend.' + hostname + '/'; 
 }

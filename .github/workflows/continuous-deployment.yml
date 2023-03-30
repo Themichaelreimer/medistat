@@ -1,12 +1,13 @@
-name: Pull Request
-run-name: PR ${{github.event.pull_request.number}}
+name: Continuous Deployment
+run-name: CD ${{github.event.pull_request.number}}
 on:
-  pull_request:
-    types: [ready_for_review, opened, synchronize, closed]
+  push:
+    branches:
+      - main
 
 jobs:
   setup:
-    runs-on: ['self-hosted', 'staging']
+    runs-on: ['self-hosted', 'cd']
     steps:
       - name: "Checkout"
         uses: actions/checkout@v3
@@ -20,22 +21,15 @@ jobs:
           pip3 install -r requirements.txt
           cp ~/medistat.env .env
 
-      - name: "Ensure code style is acceptable"
-        run: python3 manager.py check_code_quality
-
       - name: "Setup Services"
         run: |
           python3 manager.py build
-          python3 manager.py down
           python3 manager.py up
-          python3 manager.py init_db -y 
+          python3 manager.py manage migrate
 
       - name: "Ensure services are healthy"
         run: python3 manager.py check_services
 
-      - name: "Run backend tests"
-        run: python3 manager.py manage test
-
 concurrency:
-  group: pr_pipeline_${{ github.event.pull_request.number }}
-  cancel-in-progress: false
+  group: cd_pipeline_${{ github.event.pull_request.number }}
+  cancel-in-progress: true
