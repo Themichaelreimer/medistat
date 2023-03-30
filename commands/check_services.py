@@ -5,6 +5,7 @@ from time import sleep
 
 from .common.docker_helpers import (
     get_containers_map,
+    get_docker_containers_by_name,
     get_docker_compose_version,
     get_docker_project_name,
 )
@@ -16,7 +17,7 @@ from .common.docker_helpers import (
     `docker ps` is a better alternative for development purposes
 """
 
-EXPECTED_COMPOSE_FILE_NAMES = ["docker-compose.yml", "docker-compose-traefik.yml"]
+EXPECTED_COMPOSE_FILE_NAMES = ["docker-compose.yml"]
 STARTING_MAX_RETRIES = 30  # Retry health check up to this number of times, if the container is still starting
 STARTING_RETRY_LATENCY = 5  # Number of seconds between health checks if a container is still starting
 
@@ -38,6 +39,12 @@ def run():
 
             container = containers[expected_container_name]
             check_container_state(container)
+
+    # The reverse proxy might not be running on this stack - it's "universal", so that one container services all stacks
+    reverse_proxy = get_docker_containers_by_name("reverse-proxy")
+    assert len(reverse_proxy) == 1, "There should be exactly one container named `reverse-proxy`"
+    reverse_proxy = reverse_proxy[0]
+    check_container_state(reverse_proxy)
 
     print("All services are running and healthy!")
 
