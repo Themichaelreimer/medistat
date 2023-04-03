@@ -41,8 +41,8 @@ def run():
             check_container_state(container)
 
     # The reverse proxy might not be running on this stack - it's "universal", so that one container services all stacks
-    reverse_proxy = get_docker_containers_by_name("reverse-proxy")
-    assert len(reverse_proxy) == 1, "There should be exactly one container named `reverse-proxy`"
+    reverse_proxy = get_docker_containers_by_name("reverse-proxy", filter_by_project_name=False)
+    assert len(reverse_proxy) == 1, f"There should be exactly one container named `reverse-proxy`. Found [{','.join([x.id for x in reverse_proxy])}]"
     reverse_proxy = reverse_proxy[0]
     check_container_state(reverse_proxy)
 
