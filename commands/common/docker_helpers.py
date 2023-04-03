@@ -122,6 +122,7 @@ def get_network(name: str) -> Optional[Network]:
         raise DockerStateException(
             "Multiple networks detected with given name. Please ensure you're cleaning up networks after you're done with them"
         )
+    return None
 
 
 def create_network(name: str, driver="bridge") -> Network:
