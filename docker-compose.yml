@@ -23,6 +23,7 @@ services:
       - traefik.enable=true
       - traefik.http.routers.backend_${PROJECT_NAME}.rule=Host(`backend.${HOST}`)
       - traefik.http.routers.backend_${PROJECT_NAME}.entrypoints=web,secure
+      - traefik.http.routers.backend_${PROJECT_NAME}.tls=${SSL}
       - traefik.http.services.backend_${PROJECT_NAME}.loadbalancer.server.port=80
 
   frontend:
@@ -40,6 +41,7 @@ services:
       - traefik.enable=true
       - traefik.http.routers.frontend_${PROJECT_NAME}.rule=Host(`${HOST}`)
       - traefik.http.routers.frontend_${PROJECT_NAME}.entrypoints=web,secure
+      - traefik.http.routers.frontend_${PROJECT_NAME}.tls=${SSL}
       - traefik.http.services.frontend_${PROJECT_NAME}.loadbalancer.server.port=80
 
   postgres:
@@ -87,6 +89,7 @@ services:
       - traefik.enable=true
       - traefik.http.routers.grafana_${PROJECT_NAME}.rule=Host(`grafana.${HOST}`)
       - traefik.http.routers.grafana_${PROJECT_NAME}.entrypoints=web,secure
+      - traefik.http.routers.grafana_${PROJECT_NAME}.tls=${SSL}
       - traefik.http.services.grafana_${PROJECT_NAME}.loadbalancer.server.port=3000
 
   redis:
