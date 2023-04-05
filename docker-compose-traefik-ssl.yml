@@ -10,15 +10,17 @@ services:
       - --certificatesresolvers.myresolver.acme.tlschallenge=true
       - --certificatesresolvers.myresolver.acme.email=themichaelreimer@gmail.com
       - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+      
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./config/traefik.auth:/etc/traefik/traefik.auth
       - ./config/traefik.yml:/etc/traefik/traefik.yml
       - certs:/etc/ssl/traefik
+      - letsencrypt:/letsencrypt/
     labels:
       - traefik.enable=true
       - traefik.http.routers.reverseproxy_${PROJECT_NAME}.rule=Host(`traefik.${HOST}`)
-      - traefik.http.routers.reverseproxy_${PROJECT_NAME}.entrypoints=secure
+      - traefik.http.routers.reverseproxy_${PROJECT_NAME}.entrypoints=web,secure
       - traefik.http.routers.reverseproxy_${PROJECT_NAME}.tls=${SSL}
       - traefik.http.routers.reverseproxy_${PROJECT_NAME}.tls.certresolver=myresolver
       - traefik.http.services.reverseproxy_${PROJECT_NAME}.loadbalancer.server.port=8080
@@ -32,3 +34,5 @@ services:
       - traefik.http.routers.http-catchall.middlewares=secure-redirect
 volumes:
   certs:
+
+  letsencrypt:
