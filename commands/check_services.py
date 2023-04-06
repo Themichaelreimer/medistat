@@ -22,7 +22,7 @@ STARTING_MAX_RETRIES = 30  # Retry health check up to this number of times, if t
 STARTING_RETRY_LATENCY = 5  # Number of seconds between health checks if a container is still starting
 
 
-def run():
+def run() -> None:
     for COMPOSE_FILE in EXPECTED_COMPOSE_FILE_NAMES:
         compose = get_file_contents(COMPOSE_FILE)
         services = compose["services"]

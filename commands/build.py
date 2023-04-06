@@ -3,7 +3,7 @@ import sys
 from .common.docker_helpers import bash
 
 
-def run():
+def run() -> None:
     export = ""
     if sys.platform == "darwin":
         # In this case, we will force the use of x86_64 images, even though

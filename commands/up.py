@@ -9,7 +9,7 @@ from .common.docker_helpers import (
 )
 
 
-def run():
+def run() -> None:
     ensure_env_file_exists()
     command = detect_docker_compose_command()
     project_name = get_docker_project_name()

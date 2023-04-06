@@ -3,7 +3,7 @@ import os, sys
 from .common.docker_helpers import detect_docker_compose_command
 
 
-def run():
+def run() -> None:
     command = detect_docker_compose_command()
     use_ssl = os.environ.get("SSL") == "true"
     file = "docker-compose-traefik-ssl.yml" if use_ssl else "docker-compose-traefik.yml"

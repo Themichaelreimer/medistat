@@ -5,7 +5,7 @@ from .common.docker_helpers import (
 )
 
 
-def run():
+def run() -> None:
     command = detect_docker_compose_command()
     project_name = get_docker_project_name()
 

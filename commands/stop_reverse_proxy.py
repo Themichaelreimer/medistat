@@ -6,7 +6,7 @@ from .common.docker_helpers import (
 )
 
 
-def run():
+def run() -> None:
     command = detect_docker_compose_command()
 
     # TODO: Consider if this is a systemd service
