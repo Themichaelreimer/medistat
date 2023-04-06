@@ -2,7 +2,7 @@ name: Pull Request
 run-name: PR ${{github.event.pull_request.number}}
 on:
   pull_request:
-    types: [ready_for_review, opened, synchronize, closed]
+    types: [ready_for_review, opened, synchronize]
 
 jobs:
   setup:

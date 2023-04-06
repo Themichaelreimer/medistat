@@ -10,7 +10,8 @@ jobs:
     runs-on: ['self-hosted', 'cd']
     defaults:
       run:
-        working-directory: ~/medistat
+        shell: bash
+        working-directory: /home/medistat/medistat
     steps:
       - name: "Checkout"
         run: git pull
