@@ -1,7 +1,7 @@
 import os
 
 
-def run():
+def run() -> None:
     print("Usage: python3 manager.py <COMMAND_NAME> <ARGS?>")
 
     files = [x for x in os.listdir("commands") if x[-3:] == ".py"]

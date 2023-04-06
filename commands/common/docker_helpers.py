@@ -63,7 +63,7 @@ def get_docker_compose_version() -> str:
     raise Exception(f"Could not parse output of {''.join(command_tokens)}: {version_output}")
 
 
-def get_docker_containers_by_name(name: str, filter_by_project_name: bool = True) -> List[str]:
+def get_docker_containers_by_name(name: str, filter_by_project_name: bool = True) -> List[Container]:
     """
     Returns the containers that contain `name` as a substring.
     :param name: All containers returned will have `name` as a substring
@@ -80,7 +80,7 @@ def get_docker_containers_by_name(name: str, filter_by_project_name: bool = True
     return [x for x in containers]
 
 
-def ensure_env_file_exists():
+def ensure_env_file_exists() -> None:
     """
     Ensures the .env file exists at the appropriate path.
     If the file already exists, this function does nothing.
@@ -125,7 +125,7 @@ def get_network(name: str) -> Optional[Network]:
     return None
 
 
-def create_network(name: str, driver="bridge") -> Network:
+def create_network(name: str, driver: str = "bridge") -> Network:
     """
     Creates a docker network. Used mainly to ensure external networks always exist before starting services
     :param name: Name of network being created
@@ -137,7 +137,7 @@ def create_network(name: str, driver="bridge") -> Network:
     return network
 
 
-def attach_to_network(network: Network, containers: Union[Container, Iterable[Container]]):
+def attach_to_network(network: Network, containers: Union[Container, Iterable[Container]]) -> None:
     """
     Attaches the given containers to the given network
     :param network: Network to be attached to container(s)
@@ -149,6 +149,6 @@ def attach_to_network(network: Network, containers: Union[Container, Iterable[Co
             network.connect(containers)
         containers.restart()
     elif isinstance(containers, Iterable):
-        [attach_to_network(network, container) for container in containers]
+        [attach_to_network(network, container) for container in containers]  # type:ignore
     else:
         raise TypeError("Parameter `containers` must be an iterable of Container")

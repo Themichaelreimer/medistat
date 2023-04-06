@@ -11,7 +11,7 @@ EXPECTED_DATABASE_CONTAINER_NAME = "postgres"
 EXPECTED_BACKEND_CONTAINER_NAME = "backend"
 
 
-def run():
+def run() -> None:
     # If -y is supplied, then we assume the user definitely knows what they're doing here
     # Useful to supply, for github actions
     if not "-y" in sys.argv:

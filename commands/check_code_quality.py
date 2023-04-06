@@ -1,7 +1,7 @@
 import os
 
 
-def run():
+def run() -> None:
     # Something important that needs to be done, that this hides:
     # mypy won't work correctly without environment variables being loaded.
     # Running through manager.py loads the .env file behind the scenes.
