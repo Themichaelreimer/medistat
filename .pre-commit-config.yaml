@@ -24,4 +24,4 @@ repos:
     rev: 'v1.1.1'  # Use the sha / tag you want to point at
     hooks:
     -   id: mypy
-        args: [--no-strict-optional, --ignore-missing-imports, config-file config/mypy.ini]
+        args: [--no-strict-optional, --ignore-missing-imports, --config-file=config/mypy.ini]
