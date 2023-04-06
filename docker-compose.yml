@@ -19,13 +19,17 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DATABASE_NAME=${DATABASE_NAME}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.backend_${PROJECT_NAME}.rule=Host(`backend.${HOST}`)
+      - traefik.http.routers.backend_${PROJECT_NAME}.entrypoints=web,secure
+      - traefik.http.routers.backend_${PROJECT_NAME}.tls=${SSL}
+      - traefik.http.routers.backend_${PROJECT_NAME}.tls.certresolver=myresolver
+      - traefik.http.services.backend_${PROJECT_NAME}.loadbalancer.server.port=80
 
   frontend:
     hostname: ${PROJECT_NAME}_frontend
     image: frontend
-    ports:
-      - ${HTTP_PORT}:80
-      - ${HTTPS_PORT}:443
     networks:
       - backend
     healthcheck:
@@ -34,6 +38,13 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.frontend_${PROJECT_NAME}.rule=Host(`${HOST}`)
+      - traefik.http.routers.frontend_${PROJECT_NAME}.entrypoints=web,secure
+      - traefik.http.routers.frontend_${PROJECT_NAME}.tls=${SSL}
+      - traefik.http.routers.frontend_${PROJECT_NAME}.tls.certresolver=myresolver
+      - traefik.http.services.frontend_${PROJECT_NAME}.loadbalancer.server.port=80
 
   postgres:
     hostname: ${PROJECT_NAME}_postgres
@@ -47,6 +58,8 @@ services:
       - db:/var/lib/postgresql/data
     networks:
       - backend
+    labels:
+      - traefik.enable=false
 
   statsd:
     image: graphiteapp/graphite-statsd
@@ -56,6 +69,8 @@ services:
     user: "1000:1000"
     networks:
       - backend
+    labels:
+      - traefik.enable=false
 
   grafana:
     image: grafana/grafana
@@ -69,9 +84,17 @@ services:
       start_period: 30s
     networks:
       - backend
-    ports:
-      - ${GRAFANA_WEBSERVER_PORT}:3000
-  
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.grafana_${PROJECT_NAME}.rule=Host(`grafana.${HOST}`)
+      - traefik.http.routers.grafana_${PROJECT_NAME}.entrypoints=web,secure
+      - traefik.http.routers.grafana_${PROJECT_NAME}.tls=${SSL}
+      - traefik.http.routers.grafana_${PROJECT_NAME}.tls.certresolver=myresolver
+      - traefik.http.services.grafana_${PROJECT_NAME}.loadbalancer.server.port=3000
+
   redis:
     hostname: ${PROJECT_NAME}_redis
     image: redis:latest
@@ -86,6 +109,8 @@ services:
       retries: 50
     networks:
       - backend
+    labels:
+      - traefik.enable=false
 
 networks:
   backend:

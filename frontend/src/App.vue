@@ -7,9 +7,7 @@
         <div id="nav">
           <span>MediStat</span> | 
           <router-link to="/diseases">Diseases</router-link> | 
-          <router-link to="/symptoms">Symptoms</router-link> |
           <router-link to="/lifetables">Life Tables</router-link> | 
-          <router-link to="/covid">COVID-19</router-link> 
         </div>
       </v-app-bar>
       <router-view/>

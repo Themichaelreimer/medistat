@@ -2,7 +2,7 @@ name: Pull Request
 run-name: PR ${{github.event.pull_request.number}}
 on:
   pull_request:
-    types: [ready_for_review, opened, synchronize, closed]
+    types: [ready_for_review, opened, synchronize]
 
 jobs:
   setup:
@@ -38,4 +38,4 @@ jobs:
 
 concurrency:
   group: pr_pipeline_${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  cancel-in-progress: false

@@ -1,7 +1,7 @@
 import os
 import sys
 
-from .common.docker_helpers import get_docker_container_ids_by_name, bash
+from .common.docker_helpers import get_docker_containers_by_name
 
 """
     Initializes the database. If a database already exists, it may be dropped and recreated, so that it can be rebuild cleanly.
@@ -11,7 +11,7 @@ EXPECTED_DATABASE_CONTAINER_NAME = "postgres"
 EXPECTED_BACKEND_CONTAINER_NAME = "backend"
 
 
-def run():
+def run() -> None:
     # If -y is supplied, then we assume the user definitely knows what they're doing here
     # Useful to supply, for github actions
     if not "-y" in sys.argv:
@@ -26,14 +26,14 @@ def run():
     postgres_user = os.environ.get("POSTGRES_USERNAME")
 
     # Used to drop and re-create using .env file
-    database_container_ids = get_docker_container_ids_by_name(EXPECTED_DATABASE_CONTAINER_NAME)
-    assert len(database_container_ids) == 1, f"There should be exactly one database container ID. Found {database_container_ids}"
-    database_container_id = database_container_ids[0]
+    database_container_ids = get_docker_containers_by_name(EXPECTED_DATABASE_CONTAINER_NAME, filter_by_project_name=True)
+    assert len(database_container_ids) == 1, f"There should be exactly one database container. Found {database_container_ids}"
+    database_container_id = database_container_ids[0].id
 
     # Used to run migrations after re-creating the DB
-    backend_container_ids = get_docker_container_ids_by_name(EXPECTED_BACKEND_CONTAINER_NAME)
-    assert len(backend_container_ids) == 1, f"There should be exactly one backend container ID. Found {backend_container_ids}"
-    backend_container_id = backend_container_ids[0]
+    backend_container_ids = get_docker_containers_by_name(EXPECTED_BACKEND_CONTAINER_NAME, filter_by_project_name=True)
+    assert len(backend_container_ids) == 1, f"There should be exactly one backend container. Found {backend_container_ids}"
+    backend_container_id = backend_container_ids[0].id
 
     print("Dropping existing database...")
     os.system(f'docker exec {database_container_id} bash -c "su postgres && dropdb -U {postgres_user} --if-exists {dbname}"')

@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-import os
+import os, sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -26,7 +26,14 @@ SECRET_KEY = "*j0rudf=32cn+_)bw+r9j7wo)&q40r0-k5dlml5i278en%yz10"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", False)
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost", "backend" "api.medistat.online"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "backend.localhost",
+    "backend.medistat.online",
+    "backend.staging.medistat.online",
+    "api.medistat.online",
+]
 
 CORS_ALLOW_ALL_ORIGINS = True  # Just to check the CORS module is even working
 CORS_ALLOWED_HOSTS = ["http://localhost", "http://medistat", "https://medistat.online"]
@@ -141,3 +148,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
