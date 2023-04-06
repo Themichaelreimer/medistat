@@ -18,17 +18,19 @@ jobs:
       - name: "Install Requirements"
         run: |
           pip3 install -r requirements.txt
-          cp ~/medistat.env .env
 
       - name: "Ensure code style is acceptable"
         run: python3 manager.py check_code_quality
+
+      - name: "Generate env file"
+        run: python3 manager.py generate_env pr_${{github.event.pull_request.number}}
 
       - name: "Setup Services"
         run: |
           python3 manager.py build
           python3 manager.py down
           python3 manager.py up
-          python3 manager.py init_db -y 
+          python3 manager.py init_db -y
 
       - name: "Ensure services are healthy"
         run: python3 manager.py check_services
