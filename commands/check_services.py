@@ -5,6 +5,7 @@ from time import sleep
 
 from .common.docker_helpers import (
     get_containers_map,
+    get_docker_containers_by_name,
     get_docker_compose_version,
     get_docker_project_name,
 )
@@ -16,33 +17,47 @@ from .common.docker_helpers import (
     `docker ps` is a better alternative for development purposes
 """
 
-EXPECTED_COMPOSE_FILE_NAME = "docker-compose.yml"
+EXPECTED_COMPOSE_FILE_NAMES = ["docker-compose.yml"]
 STARTING_MAX_RETRIES = 30  # Retry health check up to this number of times, if the container is still starting
 STARTING_RETRY_LATENCY = 5  # Number of seconds between health checks if a container is still starting
 
 
-def run():
-    compose = get_file_contents()
-    services = compose["services"]
+def run() -> None:
+    for COMPOSE_FILE in EXPECTED_COMPOSE_FILE_NAMES:
+        compose = get_file_contents(COMPOSE_FILE)
+        services = compose["services"]
 
-    # We should be able to find all of these in a 'Running' state
-    service_names = list(services.keys())
-    is_docker_compose_v1 = get_docker_compose_version()[0] == "1"
-    project_name = get_docker_project_name()
+        # We should be able to find all of these in a 'Running' state
+        service_names = list(services.keys())
+        is_docker_compose_v1 = get_docker_compose_version()[0] == "1"
+        project_name = get_docker_project_name()
 
-    containers = get_containers_map()
-    for service in service_names:
-        expected_container_name = f"{project_name}_{service}_1" if is_docker_compose_v1 else f"{project_name}-{service}-1"
-        assert expected_container_name in containers, f"Container `{expected_container_name}` is not running"
+        containers = get_containers_map()
+        for service in service_names:
+            expected_container_name = f"{project_name}_{service}_1" if is_docker_compose_v1 else f"{project_name}-{service}-1"
+            assert expected_container_name in containers, f"Container `{expected_container_name}` is not running"
 
-        container = containers[expected_container_name]
-        check_container_state(container)
+            container = containers[expected_container_name]
+            check_container_state(container)
+
+    # The reverse proxy might not be running on this stack - it's "universal", so that one container services all stacks
+    reverse_proxy = get_docker_containers_by_name("reverse-proxy", filter_by_project_name=False)
+    assert (
+        len(reverse_proxy) == 1
+    ), f"There should be exactly one container named `reverse-proxy`. Found [{','.join([x.id for x in reverse_proxy])}]"
+    reverse_proxy = reverse_proxy[0]
+    check_container_state(reverse_proxy)
 
     print("All services are running and healthy!")
 
 
-def get_file_contents() -> dict:
-    with open(EXPECTED_COMPOSE_FILE_NAME) as file:
+def get_file_contents(compose_file_name: str) -> dict:
+    """
+    Returns the docker compose file contents as a dict
+    :param compose_file_name: file name of docker compose file. Must be relative to project root
+    :return: file contents as dict
+    """
+    with open(compose_file_name) as file:
         return yaml.load(file, Loader=yaml.CLoader)
 
 

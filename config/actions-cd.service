@@ -1,0 +1,17 @@
+# Install by copying to /etc/systemd/system/
+# Expects a medistaging user and actions-runner installed in it's home dir
+
+[Unit]
+Description=Github Actions Continuous Deployment Service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=medistat
+ExecStart=/usr/bin/bash /home/medistat/actions-runner/run.sh
+
+[Install]
+WantedBy=multi-user.target

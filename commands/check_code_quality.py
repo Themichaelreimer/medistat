@@ -1,7 +1,7 @@
 import os
 
 
-def run():
+def run() -> None:
     # Something important that needs to be done, that this hides:
     # mypy won't work correctly without environment variables being loaded.
     # Running through manager.py loads the .env file behind the scenes.
@@ -16,6 +16,6 @@ def run():
     status_code = os.system("black . --config=config/black.cfg --check")
     if status_code:
         print(
-            "HINT: Is black installed? If you run `black . --config-config/black.cfg`, it will reformat your project in a way that passes the checks."
+            "HINT: Is black installed? If you run `black . --config=config/black.cfg`, it will reformat your project in a way that passes the checks."
         )
         exit(os.WEXITSTATUS(status_code))

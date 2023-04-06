@@ -1,0 +1,34 @@
+name: Continuous Deployment
+run-name: CD ${{github.event.pull_request.number}}
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  setup:
+    runs-on: ['self-hosted', 'cd']
+    defaults:
+      run:
+        shell: bash
+        working-directory: /home/medistat/medistat
+    steps:
+      - name: "Checkout"
+        run: git pull
+
+      - name: "Install Requirements"
+        run: |
+          pip3 install -r requirements.txt
+
+      - name: "Setup Services"
+        run: |
+          python3 manager.py build
+          python3 manager.py up
+          python3 manager.py manage migrate
+
+      - name: "Ensure services are healthy"
+        run: python3 manager.py check_services
+
+concurrency:
+  group: cd_pipeline_${{ github.event.pull_request.number }}
+  cancel-in-progress: true
