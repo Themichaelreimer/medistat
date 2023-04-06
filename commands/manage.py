@@ -1,5 +1,8 @@
 import os, sys
+from docker.models.containers import Container
+
 from .common.docker_helpers import get_docker_containers_by_name
+
 
 """
     This implements a command that acts as a proxy for the manage.py inside the existing container.
@@ -18,7 +21,7 @@ from .common.docker_helpers import get_docker_containers_by_name
 EXPECTED_CONTAINER_NAME = "backend"
 
 
-def run():
+def run() -> None:
     args = sys.argv[1:]
     load_venv = "source venv-backend/bin/activate"
     cmd = f'python3 manage.py {" ".join(args)}'
@@ -30,7 +33,7 @@ def run():
     exit(status_code)  # Command exit code is needed for GitHub Actions
 
 
-def get_backend_container_id() -> str:
+def get_backend_container_id() -> Container:
     matching_containers = get_docker_containers_by_name(EXPECTED_CONTAINER_NAME, filter_by_project_name=True)
     assert (
         len(matching_containers) == 1

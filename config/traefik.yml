@@ -28,3 +28,11 @@ http:
         users:
           - test:$apr1$H6uskkkW$IgXLP6ewTrSuBkTrqE8wj/
 
+certificatesResolvers:
+  myresolver:
+    acme:
+      tlschallenge: true
+      email: "themichaelreimer@gmail.com"
+      storage: "/letsencrypt/acme.json"
+      httpChallenge:
+        entryPoint: web
