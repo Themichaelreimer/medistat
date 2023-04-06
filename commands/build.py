@@ -17,4 +17,3 @@ def run() -> None:
     # TODO: Non-recursively walk through folders in root folder; check them for docker files. Build command if found
     bash(f"{export} docker build . --file backend/Dockerfile -t backend")
     bash(f"{export} docker build . --file frontend/Dockerfile -t frontend")
-    print("hi")
