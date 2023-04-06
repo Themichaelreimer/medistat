@@ -23,7 +23,7 @@ jobs:
         run: python3 manager.py check_code_quality
 
       - name: "Generate env file"
-        run: python3 manager.py generate_env pr_${{github.event.pull_request.number}}
+        run: python3 manager.py generate_env pr${{github.event.pull_request.number}}
 
       - name: "Setup Services"
         run: |
