@@ -47,11 +47,28 @@ jobs:
           python3 manager.py up
           python3 manager.py init_db -y
 
+  checks:
+    runs-on: ['self-hosted', 'staging']
+    needs: setup
+    defaults:
+      run:
+        shell: bash
+        working-directory: /home/medistaging/medistat-pr${{ github.event.pull_request.number }}
+
+    steps:
       - name: "Ensure services are healthy"
         run: python3 manager.py check_services
 
       - name: "Run backend tests"
         run: python3 manager.py manage test
+
+      - name: Post link to deployment
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          comment-id: ${{ github.event.pull_request.number }}
+          body: |
+            Deployment successful! :rocket:
+            See build at https://${{ github.event.pull_request.number }}.medistat.online/
 
 concurrency:
   group: pr_pipeline_${{ github.event.pull_request.number }}
