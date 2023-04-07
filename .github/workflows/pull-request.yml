@@ -63,12 +63,12 @@ jobs:
         run: python3 manager.py manage test
 
       - name: Post link to deployment
-        uses: peter-evans/create-or-update-comment@v3
+        uses: thollander/actions-comment-pull-request@v2
         with:
-          comment-id: ${{ github.event.pull_request.number }}
-          body: |
-            Deployment successful! :rocket:
-            See build at https://${{ github.event.pull_request.number }}.medistat.online/
+          comment_tag: pr{{ github.event.pull_request.number }}
+          message: |
+            Build Successful! :rocket:
+            See https://pr{{ github.event.pull_request.number }}.medistat.online/
 
 concurrency:
   group: pr_pipeline_${{ github.event.pull_request.number }}
