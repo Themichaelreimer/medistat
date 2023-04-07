@@ -7,13 +7,24 @@ on:
 jobs:
   setup:
     runs-on: ['self-hosted', 'staging']
+    defaults:
+      run:
+        shell: bash
+        working-directory: /home/medistaging/medistat-pr${{ github.event.pull_request.number }}
     steps:
+      - name: "Create directory if not exists"
+        run: mkdir /home/medistaging/medistat-pr${{ github.event.pull_request.number }}
+        continue-on-error: true
+
       - name: "Checkout"
         uses: actions/checkout@v3
         with:
           clean: 'true'
           submodules: 'false'
           fetch-depth: 1
+
+      - name: Copy working directory
+        run: cp -r /home/medistaging/actions-runner/_work/medistat/medistat /home/medistaging/medistat-pr${{ github.event.pull_request.number }}
 
       - name: "Install Requirements"
         run: |
