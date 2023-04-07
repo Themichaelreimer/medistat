@@ -68,7 +68,7 @@ jobs:
           comment_tag: pr{{ github.event.pull_request.number }}
           message: |
             Build Successful! :rocket:
-            See https://pr{{ github.event.pull_request.number }}.medistat.online/
+            See https://pr${{ github.event.pull_request.number }}.medistat.online/
 
 concurrency:
   group: pr_pipeline_${{ github.event.pull_request.number }}
