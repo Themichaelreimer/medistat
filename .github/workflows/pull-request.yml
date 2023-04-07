@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 1
 
       - name: Copy working directory
-        run: cp -r /home/medistaging/actions-runner/_work/medistat/medistat /home/medistaging/medistat-pr${{ github.event.pull_request.number }}
+        run: cp -r /home/medistaging/actions-runner/_work/medistat/medistat/* /home/medistaging/medistat-pr${{ github.event.pull_request.number }}
 
   setup:
     runs-on: ['self-hosted', 'staging']
