@@ -1,0 +1,23 @@
+name: Pull Request Closed
+run-name: PR ${{github.event.pull_request.number}}
+on:
+  pull_request:
+    types: [closed, merged]
+
+jobs:
+  teardown:
+    runs-on: ['self-hosted', 'staging']
+    steps:
+      - name: "Bring down services"
+        run: cd /home/medistaging/medistat-pr${{ github.event.pull_request.number }} && python3 manager.py down
+        continue-on-error: true
+
+      - name: "Delete volumes"
+        run: docker volume rm $(docker volume ls -q | grep pr${{ github.event.pull_request.number }} )
+
+      - name: "Delete files"
+        run: rm -rf /home/medistaging/medistat-pr${{ github.event.pull_request.number }}
+
+concurrency:
+  group: pr_pipeline_teardown_${{ github.event.pull_request.number }}
+  cancel-in-progress: true

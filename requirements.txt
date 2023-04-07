@@ -1,8 +1,6 @@
 black==23.1.0
 django-stubs==1.16.0
 django-stubs-ext==0.8.0
-# Requirements for manager.py
-# See requirements in backend to run the development environment
 docker==6.0.1
 mypy==1.1.1
 mypy-extensions==1.0.0

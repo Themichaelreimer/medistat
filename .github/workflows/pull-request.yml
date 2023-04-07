@@ -5,9 +5,13 @@ on:
     types: [ready_for_review, opened, synchronize]
 
 jobs:
-  setup:
+  pre-setup:
     runs-on: ['self-hosted', 'staging']
     steps:
+      - name: "Create working directory if not exists"
+        run: mkdir /home/medistaging/medistat-pr${{ github.event.pull_request.number }}
+        continue-on-error: true
+
       - name: "Checkout"
         uses: actions/checkout@v3
         with:
@@ -15,26 +19,56 @@ jobs:
           submodules: 'false'
           fetch-depth: 1
 
+      - name: Copy working directory
+        run: cp -r /home/medistaging/actions-runner/_work/medistat/medistat/* /home/medistaging/medistat-pr${{ github.event.pull_request.number }}
+
+  setup:
+    runs-on: ['self-hosted', 'staging']
+    needs: pre-setup
+    defaults:
+      run:
+        shell: bash
+        working-directory: /home/medistaging/medistat-pr${{ github.event.pull_request.number }}
+    steps:
       - name: "Install Requirements"
         run: |
           pip3 install -r requirements.txt
-          cp ~/medistat.env .env
 
       - name: "Ensure code style is acceptable"
         run: python3 manager.py check_code_quality
+
+      - name: "Generate env file"
+        run: python3 manager.py generate_env pr${{github.event.pull_request.number}}
 
       - name: "Setup Services"
         run: |
           python3 manager.py build
           python3 manager.py down
           python3 manager.py up
-          python3 manager.py init_db -y 
+          python3 manager.py init_db -y
 
+  checks:
+    runs-on: ['self-hosted', 'staging']
+    needs: setup
+    defaults:
+      run:
+        shell: bash
+        working-directory: /home/medistaging/medistat-pr${{ github.event.pull_request.number }}
+
+    steps:
       - name: "Ensure services are healthy"
         run: python3 manager.py check_services
 
       - name: "Run backend tests"
         run: python3 manager.py manage test
+
+      - name: Post link to deployment
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          comment_tag: pr{{ github.event.pull_request.number }}
+          message: |
+            Build Successful! :rocket:
+            See https://pr${{ github.event.pull_request.number }}.medistat.online/
 
 concurrency:
   group: pr_pipeline_${{ github.event.pull_request.number }}
