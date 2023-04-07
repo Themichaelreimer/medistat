@@ -6,6 +6,7 @@ def run() -> None:
 
     files = [x for x in os.listdir("commands") if x[-3:] == ".py"]
     files.sort()
+    print("hi")
 
     print(f"Available commands: ")
     for file in files:
