@@ -40,35 +40,22 @@ I have taken great care to ensure this project is as easy to get started with as
 # Repo Components Tour <a name="repo"></a>
 
 This section contains a description of all the major folders in the root of the repo.
-
-## backend
-This folder contains the Django project that implements the project backend.
-
-## frontend
-This folder contains the Vue project that implements the project frontend.
-
-## commands
-This folder contains various management commands that can be run via `manager.py`
-
-## config
-This folder contains various static config files, including systemd service files and a sample `.env` file
+|Folder | Description|
+|-------|------------|
+|backend|This folder contains the Django project that implements the project backend.|
+|frontend|This folder contains the Vue project that implements the project frontend.|
+|commands|This folder contains various stack management commands that can be run via `manager.py`|
+|config|This folder contains various static config files, including systemd service files and a sample `.env` file|
 
 # Application Services <a name="services"></a>
+|Service|Description|
+|-------|-----------|
+|Backend|This service serves the backend Django project via apache.|
+|Frontend|This service serves the frontend Vue project via apache.|
+|Postgres 14| Database for Backend|
+|Redis|General purpose cache|
+|Grafana|Visualization of metrics|
 
-## Backend
-This service serves the backend Django project via apache.
-
-## Frontend
-This service serves the frontend Vue project via apache.
-
-## Redis
-General purpose cache
-
-## Grafana
-Metrics Visualization
-
-## Postgres
-Database
 
 # Developer Experience<a name="devexp"></a>
 
@@ -78,17 +65,19 @@ The following tools and conventions are used to provide the best possible develo
 GitHub Actions is used for the following purposes on this project:
 - Performing CI checks to enforce various code quality metrics and conditions (eg, tests passing, linting, static analysis)
 - Ensuring builds are easily repeatable and correctly automated
-- Continuous Deployment of the production application
-## Static Type-checking / MyPy <a name="mypy"></a>
-MyPy is used as part of the checks for code quality, to ensure that where type hints are provided (either by the developer on this project, or by a library), that the code usage doesn't contradict the type hints. In other words, it catches mistakes that are implied by the given type hints, and the better type hints I provide, the more mistakes it can catch early.
-
-Medistat was originally written in 2021, and it did not have any enforcement of type hints at that time. Therefore the configuration of MyPy on this project has gradual adoption in mind, where type hinting can be configured to apply more strictly to some directories than others. See [the config file](config/mypy.ini) for more information
-
-[MyPy has a VSCode plugin that is recommended if you use this IDE.](https://marketplace.visualstudio.com/items?itemName=matangover.mypy)
-
-## Black Code Formatting
-Code style is PEP8 as enforced by [black](https://black.readthedocs.io/en/stable/getting_started.html), except with a max line length of 144 instead of 88. Recommended to have black run on save. Checks are enforced via commands/check_code_quality.py 
+- Continuous updating of production as `main` gets updated
+- Automatically and continously deploying successful builds of open pull requests to https://pr{{PR NUMBER HERE}}.medistat.online
+    - Link to the deployed branch-under-review is automatically posted as a comment by a bot, when all checks are successful
+    - Deployments for all open PRs get continuously updated until closed
+    - Once PRs are merged or closed, their resources are all freed.
+## Pre-Commit Hooks
+Precommit hooks give a certain level of quality-at-the-source by checking for easy to detect code smells before allowing commits. In most cases, and where possible, the pre-commit hooks will also correct the issues they find.
+Precommit hooks are used on this project for:
+- Auto-formatting python, yaml, and json files. Checks against large files being commited, trailing whitespace, lines at end of file, tabs, and CLRF.
+- Checks that commited python code has a valid AST (ie, no python syntax errors)
+- Enforcing static typing according to the mypy configuration
+    - Since this was a legacy project that I revived for the sake of demonstrating instrastructure skills, the mypy configuration reflects that of a project that is seeing incremental adoption of static typing. New project areas have stricter rules enforced than older project areas.
+- Checks to prevent `breakpoint()` from being commited
 
 ## Dependabot <a name="dependabot"></a>
-Dependabot is provided by GitHub to check for security concerns in application packages. It automatically opens pull requests that
-update package versions with security fixes, and those pull requests are automatically tested via the actions pipeline.
+Dependabot is provided by GitHub to check for security concerns in application packages. It automatically opens pull requests that update package versions with security fixes, and those pull requests are automatically tested via the actions pipeline. Note that for many of the security concerns on this project, we're currently stuck with these versions due to incompatibilities between library versions (According to dependabot).
