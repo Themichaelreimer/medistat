@@ -11,11 +11,11 @@ entryPoints:
     address: ":80"
   secure:
     address: ":443"
-#  asdf:
-#    address: ":8080"
+  db_entrypoint:
+    address: ":5432/udp"
 
 log:
-  level: DEBUG 
+  level: DEBUG
 
 http:
   routers:

@@ -32,7 +32,6 @@ ALLOWED_HOSTS = [
     "backend.localhost",
     "backend.medistat.online",
     "backend.staging.medistat.online",
-    "api.medistat.online",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True  # Just to check the CORS module is even working
@@ -93,7 +92,8 @@ WSGI_APPLICATION = "mortality.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-PG_HOSTNAME = f"{os.environ['PROJECT_NAME']}_{os.environ['POSTGRES_HOSTNAME']}" if os.environ.get("POSTGRES_HOSTNAME") else "localhost"
+# PG_HOSTNAME = f"db.{os.environ['PROJECT_NAME']}_{os.environ['POSTGRES_HOSTNAME']}" if os.environ.get("POSTGRES_HOSTNAME") else "db.localhost"
+PG_HOSTNAME = f"db.{os.environ.get('HOST', 'localhost')}"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",

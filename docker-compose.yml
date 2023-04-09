@@ -47,10 +47,10 @@ services:
       - traefik.http.services.frontend_${PROJECT_NAME}.loadbalancer.server.port=80
 
   postgres:
-    hostname: ${PROJECT_NAME}_postgres
+    hostname: db.${HOST}
     image: postgres:14.6
     restart: always  # If the container restarts endlessly and you can't figure out why, change this to 'never'
-    environment: 
+    environment:
       POSTGRES_USER: ${POSTGRES_USERNAME}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
@@ -59,7 +59,11 @@ services:
     networks:
       - backend
     labels:
-      - traefik.enable=false
+      - traefik.enable=true
+      - traefik.tcp.routers.db_${PROJECT_NAME}.rule=HostSNI(`*`)
+      - traefik.tcp.routers.db_${PROJECT_NAME}.entrypoints=db_entrypoint
+      - traefik.tcp.services.db_${PROJECT_NAME}.loadbalancer.server.port=5432
+      - traefik.tcp.routers.db_${PROJECT_NAME}.service=db_${PROJECT_NAME}
 
   statsd:
     image: graphiteapp/graphite-statsd
@@ -122,6 +126,6 @@ volumes:
 
   grafana-data:
     driver: local
-    
+
   redis-data:
     driver: local

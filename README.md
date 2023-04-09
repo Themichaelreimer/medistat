@@ -55,6 +55,7 @@ This section contains a description of all the major folders in the root of the 
 |Postgres 14| Database for Backend|
 |Redis|General purpose cache|
 |Grafana|Visualization of metrics|
+|Traefik|Reverse Proxy. Detects and exposes a subset of our services to the web. Manages LetsEncrypt SSL certs.
 
 
 # Developer Experience<a name="devexp"></a>
@@ -66,7 +67,7 @@ GitHub Actions is used for the following purposes on this project:
 - Performing CI checks to enforce various code quality metrics and conditions (eg, tests passing, linting, static analysis)
 - Ensuring builds are easily repeatable and correctly automated
 - Continuous updating of production as `main` gets updated
-- Automatically and continously deploying successful builds of open pull requests to https://pr{{PR NUMBER HERE}}.medistat.online
+- Automatically and continously deploying successful builds of open pull requests to `https://pr{{PR NUMBER HERE}}.medistat.online`. EG: `https://pr37.medistat.online`
     - Link to the deployed branch-under-review is automatically posted as a comment by a bot, when all checks are successful
     - Deployments for all open PRs get continuously updated until closed
     - Once PRs are merged or closed, their resources are all freed.

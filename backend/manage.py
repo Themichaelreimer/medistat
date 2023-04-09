@@ -2,6 +2,10 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+import dotenv
+
+# Loads a .env file from medistat/backend/.env, if the local dev server is being run
+dotenv.load_dotenv()
 
 
 def main() -> None:
