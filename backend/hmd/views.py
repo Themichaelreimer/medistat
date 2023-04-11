@@ -1,14 +1,14 @@
 import string
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.conf import settings
-from hmd.models import *
+from hmd.models import Country, LifeTable
 
 
-def add_access_control_headers(resp):
+def add_access_control_headers(resp: JsonResponse) -> JsonResponse:
     response = resp
     if settings.DEBUG:
         response["Access-Control-Allow-Origin"] = "*"
@@ -21,7 +21,7 @@ def add_access_control_headers(resp):
 
 
 @csrf_exempt
-def get_countries(request) -> JsonResponse:
+def get_countries(request: HttpRequest) -> JsonResponse:
     key = "countries"
     result = cache.get(key)
     if result:
@@ -36,7 +36,7 @@ def get_countries(request) -> JsonResponse:
 
 
 @csrf_exempt
-def get_lifetable_years(request) -> JsonResponse:
+def get_lifetable_years(request: HttpRequest) -> JsonResponse:
     country = request.POST.get("country")
     cache_key = f"lifetable_country_years"
     result = cache.get(cache_key)
@@ -51,9 +51,9 @@ def get_lifetable_years(request) -> JsonResponse:
 
 
 @csrf_exempt
-def get_life_table(request) -> JsonResponse:
+def get_life_table(request: HttpRequest) -> JsonResponse:
     country = request.POST.get("country")
-    sex = request.POST.get("sex").lower()[0]
+    sex = request.POST.get("sex", "").lower()[0]
     year = request.POST.get("year")
     cache_key = f"{country}{year}{sex}".lower()
     cache_key = "".join([c for c in cache_key if c in string.ascii_lowercase or c in string.digits])  # memcache keys are a little restrictive

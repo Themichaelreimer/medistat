@@ -9,7 +9,7 @@ import wiki.business as business
 
 
 @csrf_exempt
-def disease_index(request):
+def disease_index(request) -> JsonResponse:
     diseases = business.get_diseases_list()
     response = JsonResponse(diseases, safe=False)
 

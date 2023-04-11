@@ -100,7 +100,7 @@ services:
       - traefik.http.services.grafana_${PROJECT_NAME}.loadbalancer.server.port=3000
 
   redis:
-    hostname: ${PROJECT_NAME}_redis
+    hostname: cache.${HOST}
     image: redis:latest
     command: >
       --requirepass ${REDIS_PASSWORD}
@@ -114,7 +114,11 @@ services:
     networks:
       - backend
     labels:
-      - traefik.enable=false
+      - traefik.enable=true
+      - traefik.tcp.routers.cache_${PROJECT_NAME}.rule=HostSNI(`*`)
+      - traefik.tcp.routers.cache_${PROJECT_NAME}.entrypoints=cache_entrypoint
+      - traefik.tcp.services.cache_${PROJECT_NAME}.loadbalancer.server.port=6379
+      - traefik.tcp.routers.cache_${PROJECT_NAME}.service=cache_${PROJECT_NAME}
 
 networks:
   backend:
