@@ -23,8 +23,7 @@ def add_access_control_headers(resp: JsonResponse) -> JsonResponse:
 @csrf_exempt
 def get_countries(request: HttpRequest) -> JsonResponse:
     key = "countries"
-    result = cache.get(key)
-    if result:
+    if result := cache.get(key):
         return result
 
     countries = Country.objects.all().values("id", "name").order_by("name")
@@ -39,8 +38,8 @@ def get_countries(request: HttpRequest) -> JsonResponse:
 def get_lifetable_years(request: HttpRequest) -> JsonResponse:
     country = request.POST.get("country")
     cache_key = f"lifetable_country_years"
-    result = cache.get(cache_key)
-    if result:
+
+    if result := cache.get(cache_key):
         return result
 
     years = [x["year"] for x in LifeTable.objects.filter(country__name=country).values("year").distinct().order_by("-year")]
@@ -56,7 +55,10 @@ def get_life_table(request: HttpRequest) -> JsonResponse:
     sex = request.POST.get("sex", "").lower()[0]
     year = request.POST.get("year")
     cache_key = f"{country}{year}{sex}".lower()
-    cache_key = "".join([c for c in cache_key if c in string.ascii_lowercase or c in string.digits])  # memcache keys are a little restrictive
+    cache_key = "".join([c for c in cache_key if c in string.ascii_lowercase or c in string.digits])
+
+    if result := cache.get(cache_key):
+        return result
 
     life_table = (
         LifeTable.objects.filter(country__name=country, year=year, sex=sex, age__lte=109)

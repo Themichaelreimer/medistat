@@ -7,7 +7,9 @@ SEX_CHOICES = [("m", "m"), ("f", "f"), ("a", "a")]
 
 class Country(models.Model):
     name = models.CharField(max_length=255)
-    short_name = models.CharField(max_length=8)
+
+    class Meta:
+        indexes = [models.Index(fields=["name"])]
 
     def __str__(self) -> str:
         return str(self.name)

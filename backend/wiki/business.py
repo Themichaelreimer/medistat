@@ -2,7 +2,7 @@ import re
 from typing import Union, List
 
 from django.core.cache import cache
-from wiki.query import *
+import wiki.query as query
 
 
 # region scraper
@@ -34,7 +34,7 @@ def pre_process_string(text: str) -> str:
     return re.sub(r"(\[.*\])", r"", text)
 
 
-def __extract_objects(comma_seperated_list: str, function) -> list:
+def extract_objects(comma_seperated_list: str, function) -> list:
     """
     Given a string representing a set of objects, and a function that maps the tokens to objects,
     this function returns a list of the objects represented by that string
@@ -47,7 +47,7 @@ def __extract_objects(comma_seperated_list: str, function) -> list:
     return objs
 
 
-def __combine_adjacent_numbers(tokens: List[str]) -> List[str]:
+def combine_adjacent_numbers(tokens: List[str]) -> List[str]:
     """
     Given a list of tokens, if any two adjacent tokens are numbers, they are combined by multiplication
     :param tokens: Tokenized string
@@ -69,7 +69,7 @@ def __combine_adjacent_numbers(tokens: List[str]) -> List[str]:
     return result
 
 
-def __try_recognise_ratio(text: str) -> Union[float, None]:
+def try_recognise_ratio(text: str) -> Union[float, None]:
     """
     If a ratio can be recognised in the input string, that ratio is returned. None otherwise
     :param text: input
@@ -86,7 +86,7 @@ def __try_recognise_ratio(text: str) -> Union[float, None]:
     tokens = [x for x in input.split()]
 
     # Multiplies adjacent numbers and combines the tokens, eg ['2', '1000', 'per' 'year' -> '2000', 'per', 'year']
-    tokens = __combine_adjacent_numbers(tokens)
+    tokens = combine_adjacent_numbers(tokens)
 
     numerator = None
     should_divide = False

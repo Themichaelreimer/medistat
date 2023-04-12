@@ -3,10 +3,11 @@ from django.core.cache import cache
 
 # Note: mypy CLI says it can't find the stubs for requests, even though they are installed and are also even successfully used in mypy typechecks
 import requests  # type:ignore
-from hmd.models import Country, LifeTable
+from hmd.models import Country, LifeTable, MortalitySource, MortalitySeries, MortalityDatum
 
 import os
 import re
+import zipfile
 from io import BytesIO
 from typing import List, Tuple, Optional
 
@@ -50,7 +51,7 @@ def get_zipped_data(email: str, password: str) -> BytesIO:
     # Unnecessarily repeating this long step
     zip_download = session.get("https://www.mortality.org/File/Download/hmd.v6/zip/all_hmd/hmd_statistics_20230403.zip")
     result = BytesIO(zip_download.content)
-    cache.set(CACHE_KEY, result)
+    cache.set(CACHE_KEY, result, 24 * 3600)
 
     return result
 
@@ -69,17 +70,21 @@ def extract_row(text: str) -> list:
     return [x for x in text.split(" ") if x]
 
 
-def get_sex(text: str) -> Optional[str]:
-    """returns m or f based on input, which should be a file name"""
-    if "flt" in text:
+def get_sex(file_name: str) -> Optional[str]:
+    """
+    returns m or f based on input, which should be a file name
+    """
+    if "flt" in file_name:
         return "f"
-    if "mlt" in text:
+    if "mlt" in file_name:
         return "m"
     return None
 
 
 class Command(BaseCommand):
     help = "Loads HMD life tables into database. Calculates cumulative along the way"
+
+    SOURCE = MortalitySource
 
     def handle(self, *args, **options) -> None:  # type:ignore
         HMD_USERNAME = os.environ.get("HMD_USERNAME")
@@ -88,56 +93,53 @@ class Command(BaseCommand):
         assert HMD_USERNAME, "Please set the `HMD_USERNAME` environment variable in order to continue"
         assert HMD_PASSWORD, "Please set the `HMD_PASSWORD` environment variable in order to continue"
 
-        path = os.path.join("data", "hmd_countries")  # Next is country, then 'STATS', then FILE_NAME
-        folders = os.listdir(path)
-        for folder in folders:
-            for file_name in FILE_NAMES:
-                file_path = os.path.join(path, folder, "STATS", file_name)
+        zip_data = get_zipped_data(HMD_USERNAME, HMD_PASSWORD)
+        zip = zipfile.ZipFile(zip_data)
 
-                if os.path.isfile(file_path):
-                    try:
-                        self.process_life_table(file_path, str(folder))
-                    except Exception as e:
-                        print(f"type({e}) - {e}")
+        for filename in zip.namelist():
+            # All file names have a "nxm" in their name. These refer to the grouping of age brackets
+            # We're only interested in the highest resolution version of the data, so we ignore all other groupings.
+            if not "1x1" in filename:
+                continue
+            data = zip.open(filename).read().decode("utf-8")
+            self.process_table(filename, data)
 
-    def process_life_table(self, path: str, short_name: str) -> None:
-        with open(path, "r") as file:
-            rows = file.readlines()
-            country_name = rows[0].split(",")[0]
-            country = self.ensure_country(country_name, short_name)
-            sex = get_sex(path)
+    def process_table(self, file_name: str, file_data: str) -> None:
+        country_name = file_data[0].split(",")[0]
+        country = self.ensure_country(country_name)
+        sex = get_sex(file_name)
 
-            for row_text in rows[4:]:
-                row = extract_row(row_text)
-                year = row[0]
-                age = row[1]
+        for row_text in file_data[4:]:
+            row = extract_row(row_text)
+            year = row[0]
+            age = row[1]
 
-                probability = row[3]
-                if probability == ".":
-                    probability = 100
+            probability = row[3]
+            if probability == ".":
+                probability = 100
 
-                if row[5] == ".":
-                    p_alive: float = 0.0
-                else:
-                    p_alive = int(row[5]) / 100000
+            if row[5] == ".":
+                p_alive: float = 0.0
+            else:
+                p_alive = int(row[5]) / 100000
 
-                if "+" in age:
-                    age = age[0:-1]
+            if "+" in age:
+                age = age[0:-1]
 
-                params = {
-                    "country": country,
-                    "sex": sex,
-                    "year": year,
-                    "age": age,
-                    "probability": probability,
-                    "cumulative_probability": p_alive,
-                }
+            params = {
+                "country": country,
+                "sex": sex,
+                "year": year,
+                "age": age,
+                "probability": probability,
+                "cumulative_probability": p_alive,
+            }
 
-                self.ensure_life_table_entry(params)
+            self.ensure_life_table_entry(params)
 
     @staticmethod
-    def ensure_country(country: str, short: str) -> Country:
-        res, _ = Country.objects.get_or_create(name=country, short_name=short)
+    def ensure_country(country: str) -> Country:
+        res, _ = Country.objects.get_or_create(name=country)
         return res
 
     @staticmethod
