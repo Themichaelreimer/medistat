@@ -26,5 +26,5 @@ export function postRequest(url, data, callback){
 function getBackendURL(){
   const hostname = window.location.host;
   const protocol = location.protocol;
-  return protocol + '//backend.' + hostname + '/'; 
+  return protocol + '//backend-' + hostname + '/';
 }

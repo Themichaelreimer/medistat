@@ -11,11 +11,17 @@ entryPoints:
     address: ":80"
   secure:
     address: ":443"
+    http:
+      tls:
+        certResolver: myresolver
+        domains:
+          - main: ${HOST}
+            sans: "*.${HOST}"
 #  asdf:
 #    address: ":8080"
 
 log:
-  level: DEBUG 
+  level: DEBUG
 
 http:
   routers:
@@ -31,8 +37,8 @@ http:
 certificatesResolvers:
   myresolver:
     acme:
-      tlschallenge: true
-      email: "themichaelreimer@gmail.com"
+      #tlschallenge: true
+      email: ${ADMIN_EMAIL}
       storage: "/letsencrypt/acme.json"
-      httpChallenge:
-        entryPoint: web
+      dnsChallenge:
+        provider: cloudflare

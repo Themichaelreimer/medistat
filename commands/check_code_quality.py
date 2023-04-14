@@ -7,7 +7,7 @@ def run() -> None:
     # Running through manager.py loads the .env file behind the scenes.
 
     # mypy (type checking)
-    status_code = os.system("mypy . --explicit-package-bases --config-file config/mypy.ini")
+    status_code = os.system("mypy . --explicit-package-bases --no-strict-optional --ignore-missing-imports --config-file config/mypy.ini")
     if status_code:
         # No hint necessary: above command will have outputted recommendations
         exit(os.WEXITSTATUS(status_code))

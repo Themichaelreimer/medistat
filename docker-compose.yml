@@ -21,7 +21,7 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.backend_${PROJECT_NAME}.rule=Host(`backend.${HOST}`)
+      - traefik.http.routers.backend_${PROJECT_NAME}.rule=Host(`backend-${PROJECT_NAME}.${HOST}`)
       - traefik.http.routers.backend_${PROJECT_NAME}.entrypoints=web,secure
       - traefik.http.routers.backend_${PROJECT_NAME}.tls=${SSL}
       - traefik.http.routers.backend_${PROJECT_NAME}.tls.certresolver=myresolver
@@ -40,7 +40,7 @@ services:
       start_period: 10s
     labels:
       - traefik.enable=true
-      - traefik.http.routers.frontend_${PROJECT_NAME}.rule=Host(`${HOST}`)
+      - traefik.http.routers.frontend_${PROJECT_NAME}.rule=Host(`${FRONTEND_HOST}`)
       - traefik.http.routers.frontend_${PROJECT_NAME}.entrypoints=web,secure
       - traefik.http.routers.frontend_${PROJECT_NAME}.tls=${SSL}
       - traefik.http.routers.frontend_${PROJECT_NAME}.tls.certresolver=myresolver
@@ -50,7 +50,7 @@ services:
     hostname: ${PROJECT_NAME}_postgres
     image: postgres:14.6
     restart: always  # If the container restarts endlessly and you can't figure out why, change this to 'never'
-    environment: 
+    environment:
       POSTGRES_USER: ${POSTGRES_USERNAME}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
@@ -89,7 +89,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.grafana_${PROJECT_NAME}.rule=Host(`grafana.${HOST}`)
+      - traefik.http.routers.grafana_${PROJECT_NAME}.rule=Host(`grafana-${PROJECT_NAME}.${HOST}`)
       - traefik.http.routers.grafana_${PROJECT_NAME}.entrypoints=web,secure
       - traefik.http.routers.grafana_${PROJECT_NAME}.tls=${SSL}
       - traefik.http.routers.grafana_${PROJECT_NAME}.tls.certresolver=myresolver
@@ -122,6 +122,6 @@ volumes:
 
   grafana-data:
     driver: local
-    
+
   redis-data:
     driver: local
