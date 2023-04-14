@@ -15,7 +15,7 @@ def run() -> None:
 
     pr_name = sys.argv[1].lower()
     sample_env = read_sample_env_file()
-    sample_env = replace_host(sample_env, pr_name)
+    # sample_env = replace_host(sample_env, pr_name)
     sample_env = replace_project_name(sample_env, pr_name)
     sample_env = replace_ssl_status(sample_env)
 
