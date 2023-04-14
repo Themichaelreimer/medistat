@@ -48,7 +48,7 @@ def replace_frontend_host(env_file_contents: str, pr_name: str) -> str:
 
 
 def replace_project_name(env_file_contents: str, pr_name: str) -> str:
-    return env_file_contents.replace("PROJECT_NAME=medistat_dev", f"PROJECT_NAME=medistat_{pr_name}")
+    return env_file_contents.replace("PROJECT_NAME=medistat_dev", f"PROJECT_NAME={pr_name}")
 
 
 def replace_ssl_status(env_file_contents: str) -> str:
