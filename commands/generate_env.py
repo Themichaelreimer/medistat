@@ -43,7 +43,7 @@ def replace_host(env_file_contents: str, pr_name: str) -> str:
 
 
 def replace_frontend_host(env_file_contents: str, pr_name: str) -> str:
-    return env_file_contents.replace("FRONTEND_HOST=medistat.online", f"URL_PREFIX={pr_name}.medistat.online")
+    return env_file_contents.replace("FRONTEND_HOST=medistat.online", f"FRONTEND_HOST={pr_name}.medistat.online")
 
 
 def replace_project_name(env_file_contents: str, pr_name: str) -> str:
