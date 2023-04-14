@@ -68,7 +68,9 @@ jobs:
           comment_tag: pr{{ github.event.pull_request.number }}
           message: |
             Build Successful! :rocket:
-            See https://pr${{ github.event.pull_request.number }}.medistat.online/
+
+            Application: https://pr${{ github.event.pull_request.number }}.medistat.online/
+            Grafana: https://grafana-pr${{ github.event.pull_request.number }}.medistat.online/
 
 # These permissions are for posting comments with links to the PR deployments on Dependabot PRs
 permissions:
