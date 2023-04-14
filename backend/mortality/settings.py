@@ -44,7 +44,7 @@ CORS_ALLOWED_HOSTS = [
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost" "http://medistat" "https://api.medistat.com",
-    f"https://backend-{os.environ.get('PROJECT_NAME','')}.medistat.online",
+    f"https://{os.environ.get('PROJECT_NAME','')}.medistat.online",
 ]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
