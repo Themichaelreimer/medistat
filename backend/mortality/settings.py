@@ -33,6 +33,7 @@ ALLOWED_HOSTS = [
     "backend.medistat.online",
     "backend.staging.medistat.online",
     "api.medistat.online",
+    f"{os.environ.get('PROJECT_NAME','')}.medistat.online",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True  # Just to check the CORS module is even working
