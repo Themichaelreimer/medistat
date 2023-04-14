@@ -45,7 +45,7 @@ jobs:
           python3 manager.py build
           python3 manager.py down
           python3 manager.py up
-          python3 manager.py init_db -y
+          python3 manager.py init_db -y --sample-data
 
   checks:
     runs-on: ['self-hosted', 'staging']
@@ -68,7 +68,14 @@ jobs:
           comment_tag: pr{{ github.event.pull_request.number }}
           message: |
             Build Successful! :rocket:
-            See https://pr${{ github.event.pull_request.number }}.medistat.online/
+
+            Application: https://pr${{ github.event.pull_request.number }}.medistat.online/
+            Grafana: https://grafana-pr${{ github.event.pull_request.number }}.medistat.online/
+
+# These permissions are for posting comments with links to the PR deployments on Dependabot PRs
+permissions:
+  pull-requests: write
+  issues: write
 
 concurrency:
   group: pr_pipeline_${{ github.event.pull_request.number }}

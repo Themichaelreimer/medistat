@@ -33,13 +33,20 @@ ALLOWED_HOSTS = [
     "backend.medistat.online",
     "backend.staging.medistat.online",
     "api.medistat.online",
+    f"backend-{os.environ.get('PROJECT_NAME','')}.medistat.online",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True  # Just to check the CORS module is even working
-CORS_ALLOWED_HOSTS = ["http://localhost", "http://medistat", "https://medistat.online"]
+CORS_ALLOWED_HOSTS = [
+    "http://localhost",
+    "http://medistat",
+    "https://medistat.online",
+    f"https://backend-{os.environ.get('PROJECT_NAME','')}.medistat.online",
+]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost" "http://medistat" "https://api.medistat.com",
+    f"https://{os.environ.get('PROJECT_NAME','')}.medistat.online",
 ]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
