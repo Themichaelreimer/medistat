@@ -39,7 +39,8 @@ CORS_ALLOW_ALL_ORIGINS = True  # Just to check the CORS module is even working
 CORS_ALLOWED_HOSTS = [
     "http://localhost",
     "http://medistat",
-    "https://medistat.online" f"https://backend-{os.environ.get('PROJECT_NAME','')}.medistat.online",
+    "https://medistat.online",
+    f"https://backend-{os.environ.get('PROJECT_NAME','')}.medistat.online",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
