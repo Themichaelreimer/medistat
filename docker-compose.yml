@@ -40,7 +40,7 @@ services:
       start_period: 10s
     labels:
       - traefik.enable=true
-      - traefik.http.routers.frontend_${PROJECT_NAME}.rule=Host(`${HOST}`)
+      - traefik.http.routers.frontend_${PROJECT_NAME}.rule=Host(`${FRONTEND_HOST}`)
       - traefik.http.routers.frontend_${PROJECT_NAME}.entrypoints=web,secure
       - traefik.http.routers.frontend_${PROJECT_NAME}.tls=${SSL}
       - traefik.http.routers.frontend_${PROJECT_NAME}.tls.certresolver=myresolver
