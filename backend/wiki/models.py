@@ -93,7 +93,7 @@ class FlexibleValue(models.Model):
     string_value = models.TextField(null=True, blank=True)
     min_range = models.DecimalField(max_digits=32, decimal_places=16, null=True, blank=True)
     max_range = models.DecimalField(max_digits=32, decimal_places=16, null=True, blank=True)
-    value_type = models.CharField(max_length=1, choices=ValueType.choices, default=ValueType.SINGLE)
+    value_type = models.CharField(max_length=6, choices=ValueType.choices, default=ValueType.SINGLE)
     modifier = models.CharField(max_length=1, choices=Modifier.choices, default=Modifier.EXACTLY)
 
     def sorting_key(self) -> Decimal:
