@@ -27,6 +27,7 @@ def read_sample_env_file() -> str:
     """
     Reads the sample env file into a string.
     Our env file is going to use this as a base, and edit a few values.
+
     """
     with open(SAMPLE_ENV_PATH, "r") as sample_env:
         contents = sample_env.read()
