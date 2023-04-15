@@ -2,14 +2,12 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-import dotenv
-
-# Loads a .env file from medistat/backend/.env, if the local dev server is being run
-dotenv.load_dotenv()
+from dotenv import load_dotenv
 
 
 def main() -> None:
     """Run administrative tasks."""
+    load_dotenv()
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mortality.settings")
     try:
         from django.core.management import execute_from_command_line

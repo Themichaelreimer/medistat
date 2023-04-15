@@ -5,6 +5,7 @@ repos:
     rev: v3.2.0
     hooks:
     -   id: check-added-large-files
+        args: [--maxkb=20000]
     -   id: forbid-new-submodules
     -   id: requirements-txt-fixer
     -   id: check-ast

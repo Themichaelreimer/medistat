@@ -21,7 +21,7 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.backend_${PROJECT_NAME}.rule=Host(`backend.${HOST}`)
+      - traefik.http.routers.backend_${PROJECT_NAME}.rule=Host(`backend-${PROJECT_NAME}.${HOST}`)
       - traefik.http.routers.backend_${PROJECT_NAME}.entrypoints=web,secure
       - traefik.http.routers.backend_${PROJECT_NAME}.tls=${SSL}
       - traefik.http.routers.backend_${PROJECT_NAME}.tls.certresolver=myresolver
@@ -40,7 +40,7 @@ services:
       start_period: 10s
     labels:
       - traefik.enable=true
-      - traefik.http.routers.frontend_${PROJECT_NAME}.rule=Host(`${HOST}`)
+      - traefik.http.routers.frontend_${PROJECT_NAME}.rule=Host(`${FRONTEND_HOST}`)
       - traefik.http.routers.frontend_${PROJECT_NAME}.entrypoints=web,secure
       - traefik.http.routers.frontend_${PROJECT_NAME}.tls=${SSL}
       - traefik.http.routers.frontend_${PROJECT_NAME}.tls.certresolver=myresolver
@@ -93,7 +93,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.grafana_${PROJECT_NAME}.rule=Host(`grafana.${HOST}`)
+      - traefik.http.routers.grafana_${PROJECT_NAME}.rule=Host(`grafana-${PROJECT_NAME}.${HOST}`)
       - traefik.http.routers.grafana_${PROJECT_NAME}.entrypoints=web,secure
       - traefik.http.routers.grafana_${PROJECT_NAME}.tls=${SSL}
       - traefik.http.routers.grafana_${PROJECT_NAME}.tls.certresolver=myresolver

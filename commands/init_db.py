@@ -64,6 +64,12 @@ def run() -> None:
     else:
         print("Connection failed")
 
+    if "--sample-data" in sys.argv or "-D" in sys.argv:
+        print("Importing sample data...")
+        os.system(
+            f'docker exec {backend_container_id} bash -c "source venv-backend/bin/activate && python3 manage.py loaddata sample_data.json"'
+        )
+
     print("Done")
 
 

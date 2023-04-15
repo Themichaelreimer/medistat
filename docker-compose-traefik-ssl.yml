@@ -32,6 +32,9 @@ services:
       - traefik.http.routers.http-catchall.rule=HostRegexp(`{any:.+}`)
       - traefik.http.routers.http-catchall.entrypoints=web
       - traefik.http.routers.http-catchall.middlewares=secure-redirect
+    environment:
+      - CLOUDFLARE_EMAIL=${ADMIN_EMAIL}
+      - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
 volumes:
   certs:
 
