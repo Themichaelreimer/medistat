@@ -18,7 +18,7 @@ where `COMMAND_NAME` is the name of a file in this directory ending in `.py`, wi
 |`flush_cache`| Flushes the redis cache of the current stack. | `python3 manager.py flush_cache`|
 |`help`|Lists all availble `manager.py` commands|`python3 manager.py` or `python3 manager.py help`|
 |`init_db`|Recreates the postgres DB state using the credentials listed in your `.env` file. If a database already exists, it will be deleted first. (There is a confirmation check in this command)| `python3 manager.py init_db`|
-|`generate_env`| Generates an appropriate .env file for a stack based on a PR name. The only intended use of this command is for automatic deployment of Pull Requests to subdomains for easy review |
+|`generate_env`| Generates an appropriate .env file for a stack based on a PR name. The only intended use of this command is for automatic deployment of Pull Requests to subdomains for easy review | `python3 manager.py generate_env 44`|
 |`manage`|A Proxy to the backend's Django `manage.py`. Useful for running migrations, tests, etc inside the container, without the use of `docker exec -it ...`| `python3 manager.py manage migrate`|
 |`start_reverse_proxy`|Starts the global `traefik` instance. No services will be exposed to the internet without this command. Note that there should only be one instance of this container **per machine**, even if multiple stacks are running on that machine.| `python3 manager.py start_reverse_proxy`|
 |`stop_reverse_proxy`|Stops the global `traefik` instance.|`python3 manager.py stop_reverse_proxy`|
