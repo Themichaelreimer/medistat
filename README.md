@@ -9,7 +9,7 @@ primary portfolio project.
     - [Setup](#setup)
 - [Repo Components](#repo)
 - [Application Services](#services)
-- [Developer Experience](#devexp)
+- [Developer Experience](#pipeline)
     - [Github Actions](#actions)
     - [Static Typing / MyPy](mypy)
     - [Dependabot](#dependabot)
@@ -42,6 +42,7 @@ I have taken great care to ensure this project is as easy to get started with as
 This section contains a description of all the major folders in the root of the repo.
 |Folder | Description|
 |-------|------------|
+|.github| GitHub Actions Workflows (eg: continuous deployment process); Dependabot config|
 |backend|This folder contains the Django project that implements the project backend.|
 |frontend|This folder contains the Vue project that implements the project frontend.|
 |commands|This folder contains various stack management commands that can be run via `manager.py`|
@@ -58,11 +59,12 @@ This section contains a description of all the major folders in the root of the 
 |Traefik|Reverse Proxy. Detects and exposes a subset of our services to the web. Manages LetsEncrypt SSL certs.
 
 
-# Developer Experience<a name="devexp"></a>
+# Developerment Pipeline<a name="pipeline"></a>
+![Pipeline diagram](/readme_assets/pipeline.png)
 
 The following tools and conventions are used to provide the best possible developer experience, and maximize system maintainability
 
-## Github Actions <a name="actions"></a>
+## PR Deployment <a name="actions"></a>
 GitHub Actions is used for the following purposes on this project:
 - Performing CI checks to enforce various code quality metrics and conditions (eg, tests passing, linting, static analysis)
 - Ensuring builds are easily repeatable and correctly automated
@@ -71,14 +73,35 @@ GitHub Actions is used for the following purposes on this project:
     - Link to the deployed branch-under-review is automatically posted as a comment by a bot, when all checks are successful
     - Deployments for all open PRs get continuously updated until closed
     - Once PRs are merged or closed, their resources are all freed.
-## Pre-Commit Hooks
-Precommit hooks give a certain level of quality-at-the-source by checking for easy to detect code smells before allowing commits. In most cases, and where possible, the pre-commit hooks will also correct the issues they find.
+    
+## Pre-Commit Hooks <a name="hooks">
+Precommit hooks give a certain level of quality-at-the-source by checking for easy to detect code issues before allowing commits. In most cases, and where possible, the pre-commit hooks will also correct the issues they find.
 Precommit hooks are used on this project for:
-- Auto-formatting python, yaml, and json files. Checks against large files being commited, trailing whitespace, lines at end of file, tabs, and CLRF.
+- Auto-formatting python, yaml, and json files. Checks against excessively large files being commited, trailing whitespace, lines at end of file, tabs, and CLRF.
 - Checks that commited python code has a valid AST (ie, no python syntax errors)
 - Enforcing static typing according to the mypy configuration
     - Since this was a legacy project that I revived for the sake of demonstrating instrastructure skills, the mypy configuration reflects that of a project that is seeing incremental adoption of static typing. New project areas have stricter rules enforced than older project areas.
 - Checks to prevent `breakpoint()` from being commited
 
-## Dependabot <a name="dependabot"></a>
-Dependabot is provided by GitHub to check for security concerns in application packages. It automatically opens pull requests that update package versions with security fixes, and those pull requests are automatically tested via the actions pipeline. Note that for many of the security concerns on this project, we're currently stuck with these versions due to incompatibilities between library versions (According to dependabot).
+## Pull Request Workflow
+### Create/Update
+When a pull request is opened, or the branch in question receives new commits, the following occurs automatically via GitHub Actions:
+- Code is installed on the application server at `~/medistat-pr{{PR_NUMBER_HERE}}`.
+- `.env` file is generated that contains all necessary config to start up this PR as a new docker stack without interfering with any other services
+- Build process runs and produces new custom images if successful. If not successful, the developer who opened the PR is notified.
+- Docker stack is started. Checks run to ensure that all stack services become healthy within a certain configurable timeframe.
+- Unit and integration tests run. Additional code-quality checks are run.
+- Database is built from scratch and data fixtures are loaded in.
+- GitHub Actions bot posts the link to the deployed stack's frontend service, and any other admin services. (TODO: Generate credentials for every service and post the credentials on the PR). The URLs will follow the pattern of: `https://pr{{PR_NUMBER_HERE}}.medistat.online` and `https://{{SERVICE_NAME_HERE}}pr{{PR_NUMBER_HERE}}.medistat.online`
+
+### Delete
+When a pull request is closed (usually because it was merged), the resources used are cleaned up:
+- The docker stack is brought down
+- The containers used by the PR's stack are deleted
+- The directory containing all project files is deleted
+
+## Continuous Deployment
+When the `main` branch receives a push, GitHub Actions activates the continuous deployment script. This follows a very similar process to the Pull Request Workflow described above, with a few differences.
+- Existing .env file is used; deploys to `https://medistat.online` instead of a subdomain of `medistat.online`
+- Existing database is used, instead of creating a new database from scratch. New database migrations run.
+- Production deployment happens under a different OS user than any staging/review deployment.
