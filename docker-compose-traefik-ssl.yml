@@ -4,13 +4,13 @@ services:
     hostname: traefik.${HOST}
     image: traefik:v2.9
     network_mode: "host"
-    command: 
+    command:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --certificatesresolvers.myresolver.acme.tlschallenge=true
       - --certificatesresolvers.myresolver.acme.email=themichaelreimer@gmail.com
       - --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
-      
+
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./config/traefik.auth:/etc/traefik/traefik.auth
@@ -32,6 +32,9 @@ services:
       - traefik.http.routers.http-catchall.rule=HostRegexp(`{any:.+}`)
       - traefik.http.routers.http-catchall.entrypoints=web
       - traefik.http.routers.http-catchall.middlewares=secure-redirect
+    environment:
+      - CLOUDFLARE_EMAIL=${ADMIN_EMAIL}
+      - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
 volumes:
   certs:
 

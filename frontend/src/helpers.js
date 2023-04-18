@@ -26,5 +26,10 @@ export function postRequest(url, data, callback){
 function getBackendURL(){
   const hostname = window.location.host;
   const protocol = location.protocol;
-  return protocol + '//backend.' + hostname + '/'; 
+  // Special case for the production URL, not hosted at a subdomain
+  if(hostname == 'medistat.online'){
+    return protocol + '//backend-medistat.medistat.online/';
+  }
+  // "regular" case where we host at a subdomain
+  return protocol + '//backend-' + hostname + '/';
 }
