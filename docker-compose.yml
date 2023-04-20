@@ -4,6 +4,8 @@ services:
   backend:
     hostname: ${PROJECT_NAME}_backend
     image: backend
+    volumes:
+      - datalake:/datalake
     networks:
       - backend
     healthcheck:
@@ -132,4 +134,7 @@ volumes:
     driver: local
 
   redis-data:
+    driver: local
+
+  datalake:
     driver: local

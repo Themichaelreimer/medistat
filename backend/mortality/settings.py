@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "hmd",
     "wiki",
     "disease",
+    "datalake",
 ]
 
 MIDDLEWARE = [
@@ -171,3 +172,5 @@ LOGGING = {
         "level": "INFO",
     },
 }
+
+DATALAKE_PATH = "/datalake"

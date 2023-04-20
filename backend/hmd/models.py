@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.forms import model_to_dict
+from datalake.models import RawData
 
 SEX_CHOICES = [("m", "m"), ("f", "f"), ("a", "a")]
 
@@ -39,14 +40,6 @@ class MortalityTag(models.Model):
         indexes = [models.Index(fields=["name"])]
 
 
-class MortalitySource(models.Model):
-    name = models.CharField(max_length=64, null=False)
-    link = models.TextField(null=True, blank=True)
-
-    class Meta:
-        indexes = [models.Index(fields=["name"])]
-
-
 class MortalitySeries(models.Model):
     country = models.ForeignKey(Country, null=True, on_delete=models.SET_NULL)
     sex = models.CharField(max_length=1, choices=SEX_CHOICES, default="a")
@@ -54,7 +47,6 @@ class MortalitySeries(models.Model):
     tags = ArrayField(
         models.IntegerField(), verbose_name=("choices")
     )  # Arrayfield is postgres exclusive. Can't have array of foreign keys, must settle for ints
-    source = models.ForeignKey(MortalitySource, on_delete=models.CASCADE)
 
     class Meta:
         indexes = [models.Index(fields=["tags", "country", "sex", "age"])]
@@ -64,6 +56,7 @@ class MortalityDatum(models.Model):
     series = models.ForeignKey(MortalitySeries, on_delete=models.CASCADE)
     date = models.DateField()
     value = models.DecimalField(max_digits=12, decimal_places=6)
+    raw_data = models.ForeignKey(RawData, null=True, on_delete=models.CASCADE)
 
     class Meta:
         indexes = [models.Index(fields=["series", "-date"])]

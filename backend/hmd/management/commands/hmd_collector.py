@@ -3,7 +3,8 @@ from django.core.cache import cache
 
 # Note: mypy CLI says it can't find the stubs for requests, even though they are installed and are also even successfully used in mypy typechecks
 import requests  # type:ignore
-from hmd.models import Country, LifeTable, MortalitySource, MortalitySeries, MortalityDatum
+from hmd.models import Country, LifeTable
+from datalake.models import DataSource, RawData
 
 import os
 import re
@@ -84,7 +85,7 @@ def get_sex(file_name: str) -> Optional[str]:
 class Command(BaseCommand):
     help = "Loads HMD life tables into database. Calculates cumulative along the way"
 
-    SOURCE = MortalitySource
+    SOURCE, _ = DataSource.objects.get_or_create(name=SOURCE_NAME, link=SOURCE_LINK)
 
     def handle(self, *args, **options) -> None:  # type:ignore
         HMD_USERNAME = os.environ.get("HMD_USERNAME")

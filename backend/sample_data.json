@@ -1409,16 +1409,14 @@
   },
   {
     "fields": {
-      "name": "Canada",
-      "short_name": "CAN"
+      "name": "Canada"
     },
     "model": "hmd.country",
     "pk": 15
   },
   {
     "fields": {
-      "name": "The United States of America",
-      "short_name": "USA"
+      "name": "The United States of America"
     },
     "model": "hmd.country",
     "pk": 46
