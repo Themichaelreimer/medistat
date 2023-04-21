@@ -61,3 +61,20 @@ class TestModels(TestCase):
         self.assertEquals(raw_data_record.md5_hash, file_md5)
         self.assertEquals(raw_data_record.published_timestamp, file_mtime)
         self.assertEquals(raw_data_record.processed_timestamp, None)
+
+    def test_has_already(self) -> None:
+        file_data_1 = b"hi"
+        file_data_2 = b"hey"
+        file_mtime = datetime.datetime(2022, 1, 2, tzinfo=datetime.timezone.utc)
+        file_source = DataSource.objects.create(name="Test NGO")
+
+        self.assertFalse(RawData.has_already(file_source, file_data_1))
+
+        RawData.store(file_source, file_data_1, file_mtime)
+
+        self.assertTrue(RawData.has_already(file_source, file_data_1))
+        self.assertFalse(RawData.has_already(file_source, file_data_2))
+
+        RawData.store(file_source, file_data_2, file_mtime)
+
+        self.assertTrue(RawData.has_already(file_source, file_data_2))
