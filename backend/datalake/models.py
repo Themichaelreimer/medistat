@@ -23,7 +23,7 @@ class RawData(models.Model):
     source = models.ForeignKey(DataSource, on_delete=models.DO_NOTHING)
     published_timestamp = models.DateTimeField()  # Time data source published this document
     loaded_timestamp = models.DateTimeField(default=timezone.now)  # For audit purposes only; never a reason to override the default timestamp
-    processed_timestamp = models.DateTimeField(null=True)  # For audit purposes only
+    processed_timestamp = models.DateTimeField(null=True)  # When non-null, we know this data chunk has been processed
     file_path = models.TextField()
     link = models.TextField(default="")  # Link to raw data, used to build references where available
     md5_hash = models.CharField(max_length=32)
@@ -88,3 +88,14 @@ class RawData(models.Model):
     def get_file_data(self) -> bytes:
         with open(self.file_path, "rb") as f:
             return f.read()
+
+    def mark_as_processed(self) -> None:
+        self.processed_timestamp = timezone.now()
+        self.save()
+
+    @staticmethod
+    def get_unprocessed_data_by_source(source: DataSource) -> models.QuerySet["RawData"]:
+        """
+        Returns a queryset of all unprocessed data records from the given source
+        """
+        return RawData.objects.filter(source=source, processed_timestamp=None)

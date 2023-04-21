@@ -173,4 +173,4 @@ LOGGING = {
     },
 }
 
-DATALAKE_PATH = "/datalake"
+DATALAKE_PATH = os.environ.get("DATALAKE_PATH", "/datalake")

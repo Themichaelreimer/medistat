@@ -17,7 +17,17 @@ class Command(BaseCommand):
         parser.add_argument("collector_name", type=str, help=f"Name of collector. Supported options are: {collector_names}")
 
     def handle(self, *args, **options) -> None:  # type:ignore
-        print(sys.argv)
+        layer = options.get("layer")
+        collector_name = options.get("collector_name")
+        extract_success = True  # Default value in case user only wants to transform
+
+        if collector_name in self.get_supported_collectors():
+            collector_module = importlib.import_module(f"hmd.collectors.{collector_name}")
+            if layer in ["extract", "all"]:
+                extract_success = getattr(collector_module, "extract")()
+
+            if extract_success and layer in ["transform", "all"]:
+                new_records = getattr(collector_module, "transform")()
 
     @staticmethod
     def get_supported_collectors() -> List[str]:

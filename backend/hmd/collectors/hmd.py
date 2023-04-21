@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.db import transaction
 
 # Note: mypy CLI says it can't find the stubs for requests, even though they are installed and are also even successfully used in mypy typechecks
 import requests  # type:ignore
@@ -9,7 +10,8 @@ import os
 import re
 import zipfile
 from io import BytesIO
-from typing import List, Tuple, Optional, List
+from typing import List, Tuple, Optional, Iterable
+import datetime, dateparser  # type:ignore
 
 FILE_NAMES = ["fltper_1x1.txt", "mltper_1x1.txt"]
 SOURCE_NAME = "Human Mortality Database"
@@ -22,30 +24,60 @@ SOURCE_LINK = "https://www.mortality.org/"
 #   HMD_PASSWORD="..."
 
 
+# @transaction
 def extract() -> bool:
     """
     Extracts data from the source and saves it unmodified in the data lake
     Returns whether there is new data.
     """
-    pass
+
+    HMD_USERNAME = os.environ.get("HMD_USERNAME")
+    HMD_PASSWORD = os.environ.get("HMD_PASSWORD")
+
+    assert HMD_USERNAME, "Please set the `HMD_USERNAME` environment variable in order to continue"
+    assert HMD_PASSWORD, "Please set the `HMD_PASSWORD` environment variable in order to continue"
+
+    source, _ = DataSource.objects.get_or_create(name=SOURCE_NAME, link=SOURCE_LINK)
+    data_file, timestamp = get_zipped_data(HMD_USERNAME, HMD_PASSWORD)
+
+    if not RawData.has_already(source, data_file):
+        RawData.store(source, data_file, timestamp, SOURCE_LINK)
+        return True
+    return False
 
 
-def transform() -> int:
+# @transaction
+def transform(raw_data: Optional[Iterable[RawData]] = None) -> int:
     """
     Transforms raw data units into clean, structured data.
     Implicitly performs the "load" step of ETL at the end. This could have been made a seperate function, but
     it will be the same everywhere, and there is no practical benefit to seperating the load step in this pipeline.
     """
-    pass
+
+    if not raw_data:
+        source = DataSource.objects.get(name=SOURCE_NAME)
+        raw_data = RawData.get_unprocessed_data_by_source(source)
+
+    for data_record in raw_data:
+        zip = zipfile.ZipFile(BytesIO(data_record.get_file_data()))
+        for filename in zip.namelist():
+            # All file names have a "nxm" in their name. These refer to the grouping of age brackets
+            # We're only interested in the highest resolution version of the data, so we ignore all other groupings.
+            if not ".txt" in filename or not "1x1" in filename:
+                continue
+            data = zip.open(filename).read().decode("utf-8")
+            process_table(filename, data)
+        data_record.mark_as_processed()
+    return 0
 
 
-def get_zipped_data(email: str, password: str) -> BytesIO:
+def get_zipped_data(email: str, password: str) -> Tuple[BytesIO, datetime.datetime]:
     """
     Logs into the HMD website, downloads the zip file containing the current state of the dataset.
     The returned result is the zip file as an in-memory file
     :param email: Human Mortality Database email/username (They're the same thing in this context)
     :param password: Human Mortality Database password
-    :return: zip file of their dataset, as an in-memory filezx
+    :return: zip file of their dataset, as an in-memory file
     """
     CACHE_KEY = "hmd_bulk_data"
     if file_data := cache.get(CACHE_KEY):
@@ -67,7 +99,10 @@ def get_zipped_data(email: str, password: str) -> BytesIO:
     # This takes a good while. The file is ~160MB. We cache this in redis with a long lifetime in order to avoid
     # Unnecessarily repeating this long step
     zip_download = session.get("https://www.mortality.org/File/Download/hmd.v6/zip/all_hmd/hmd_statistics_20230403.zip")
-    result = BytesIO(zip_download.content)
+    datetime_str = zip_download.headers["Date"]
+    timestamp = dateparser.parse(datetime_str)
+
+    result = (zip_download.content, timestamp)
     cache.set(CACHE_KEY, result, 24 * 3600)
 
     return result
@@ -87,6 +122,13 @@ def extract_row(text: str) -> list:
     return [x for x in text.split(" ") if x]
 
 
+def extract_file_header_data(line: str) -> dict:
+    """
+    Extracts the useful information from the first line of a hmd data file into a dict with the keys: 'country', and  'dataset_name'
+    """
+    pass
+
+
 def get_sex(file_name: str) -> Optional[str]:
     """
     returns m or f based on input, which should be a file name
@@ -98,75 +140,52 @@ def get_sex(file_name: str) -> Optional[str]:
     return None
 
 
-'''
+def process_table(file_name: str, file_data_str: str) -> None:
+    file_data = file_data_str.split("\n")
+    country_name = file_data[0].split(",")[0]
+    country = ensure_country(country_name)
+    sex = get_sex(file_name)
 
-class Command:
-    help = "Loads HMD life tables into database. Calculates cumulative along the way"
+    return None
 
-    SOURCE, _ = DataSource.objects.get_or_create(name=SOURCE_NAME, link=SOURCE_LINK)
+    for row_text in file_data[4:]:
+        row = extract_row(row_text)
+        year = row[0]
+        age = row[1]
 
-    def handle(self, *args, **options) -> None:  # type:ignore
-        HMD_USERNAME = os.environ.get("HMD_USERNAME")
-        HMD_PASSWORD = os.environ.get("HMD_PASSWORD")
+        probability = row[3]
+        if probability == ".":
+            probability = 100
 
-        assert HMD_USERNAME, "Please set the `HMD_USERNAME` environment variable in order to continue"
-        assert HMD_PASSWORD, "Please set the `HMD_PASSWORD` environment variable in order to continue"
+        if row[5] == ".":
+            p_alive: float = 0.0
+        else:
+            p_alive = int(row[5]) / 100000
 
-        zip_data = get_zipped_data(HMD_USERNAME, HMD_PASSWORD)
-        zip = zipfile.ZipFile(zip_data)
+        if "+" in age:
+            age = age[0:-1]
 
-        for filename in zip.namelist():
-            # All file names have a "nxm" in their name. These refer to the grouping of age brackets
-            # We're only interested in the highest resolution version of the data, so we ignore all other groupings.
-            if not "1x1" in filename:
-                continue
-            data = zip.open(filename).read().decode("utf-8")
-            self.process_table(filename, data)
+        params = {
+            "country": country,
+            "sex": sex,
+            "year": year,
+            "age": age,
+            "probability": probability,
+            "cumulative_probability": p_alive,
+        }
 
-    def process_table(self, file_name: str, file_data: str) -> None:
-        country_name = file_data[0].split(",")[0]
-        country = self.ensure_country(country_name)
-        sex = get_sex(file_name)
+        ensure_life_table_entry(params)
 
-        for row_text in file_data[4:]:
-            row = extract_row(row_text)
-            year = row[0]
-            age = row[1]
 
-            probability = row[3]
-            if probability == ".":
-                probability = 100
+def ensure_country(country: str) -> Country:
+    res, _ = Country.objects.get_or_create(name=country)
+    return res
 
-            if row[5] == ".":
-                p_alive: float = 0.0
-            else:
-                p_alive = int(row[5]) / 100000
 
-            if "+" in age:
-                age = age[0:-1]
-
-            params = {
-                "country": country,
-                "sex": sex,
-                "year": year,
-                "age": age,
-                "probability": probability,
-                "cumulative_probability": p_alive,
-            }
-
-            self.ensure_life_table_entry(params)
-
-    @staticmethod
-    def ensure_country(country: str) -> Country:
-        res, _ = Country.objects.get_or_create(name=country)
-        return res
-
-    @staticmethod
-    def ensure_life_table_entry(params: dict) -> None:
-        """
-        Takes: country,sex,age,year,probability,cumulative_probability
-        :param params: dict with the above keys
-        :return: None
-        """
-        LifeTable.objects.get_or_create(**params)
-'''
+def ensure_life_table_entry(params: dict) -> None:
+    """
+    Takes: country,sex,age,year,probability,cumulative_probability
+    :param params: dict with the above keys
+    :return: None
+    """
+    LifeTable.objects.get_or_create(**params)
