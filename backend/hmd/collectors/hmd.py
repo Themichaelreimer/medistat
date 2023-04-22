@@ -124,10 +124,23 @@ def extract_row(text: str) -> list:
 
 def extract_file_header_data(line: str) -> dict:
     """
-    Extracts the useful information from the first line of a hmd data file into a dict with the keys: 'country', and  'dataset_name'
+    Extracts the useful information from the first line of a hmd data file
+    into a dict with the keys: 'country', and 'dataset_name'
+    :param line: The first line of a HMD data file
+    :return: dict containing 'country' and 'dataset_name'
     """
-    pass
+    tokens = line.split(',')
+    if len(tokens) < 2:
+        return {}
 
+    country = tokens[0].strip()
+    dataset_name = tokens[1].split('(')[0].strip()  # This section looks like "Exposure to risk (cohort 1x1)"
+    # tokens[2] would contain info on last modified. We also get the last modified time less accurately from the metadata.
+
+    return {
+        'country': country,
+        'dataset_name': dataset_name
+    }
 
 def get_sex(file_name: str) -> Optional[str]:
     """
@@ -140,18 +153,28 @@ def get_sex(file_name: str) -> Optional[str]:
     return None
 
 
+
 def process_table(file_name: str, file_data_str: str) -> None:
     file_data = file_data_str.split("\n")
-    country_name = file_data[0].split(",")[0]
-    country = ensure_country(country_name)
+    
+    header_metadata = extract_file_header_data(file_data[0])
+
+    country = ensure_country(header_metadata['country'])
+    dataset_name = header_metadata['dataset_name']
     sex = get_sex(file_name)
 
-    return None
+    table_headers = None
 
-    for row_text in file_data[4:]:
+    for row_text in file_data[1:]:
         row = extract_row(row_text)
-        year = row[0]
-        age = row[1]
+
+        # If we haven't read the table header yet, and there is stuff in this row, assume it's the headers
+        if not table_headers:
+            if len(row) > 1:
+                table_headers = row
+                continue
+        
+        dict_row = {x:y for x,y in zip(table_headers, row)}
 
         probability = row[3]
         if probability == ".":
