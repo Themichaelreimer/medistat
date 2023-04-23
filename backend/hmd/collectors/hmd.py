@@ -23,6 +23,9 @@ SOURCE_LINK = "https://www.mortality.org/"
 #   HMD_USERNAME="..."
 #   HMD_PASSWORD="..."
 
+# Aliases to columns mentioned in the HMD tables. If a key appears, it is replaced with the vaulue during parsing
+ALIASES = {"mx": "", "qx": "", "ax": "", "lx": "", "dx": "", "Lx": "", "Tx": "", "ex": ""}
+
 
 # @transaction
 def extract() -> bool:
@@ -129,18 +132,16 @@ def extract_file_header_data(line: str) -> dict:
     :param line: The first line of a HMD data file
     :return: dict containing 'country' and 'dataset_name'
     """
-    tokens = line.split(',')
+    tokens = line.split(",")
     if len(tokens) < 2:
         return {}
 
     country = tokens[0].strip()
-    dataset_name = tokens[1].split('(')[0].strip()  # This section looks like "Exposure to risk (cohort 1x1)"
+    dataset_name = tokens[1].split("(")[0].strip()  # This section looks like "Exposure to risk (cohort 1x1)"
     # tokens[2] would contain info on last modified. We also get the last modified time less accurately from the metadata.
 
-    return {
-        'country': country,
-        'dataset_name': dataset_name
-    }
+    return {"country": country, "dataset_name": dataset_name}
+
 
 def get_sex(file_name: str) -> Optional[str]:
     """
@@ -150,17 +151,18 @@ def get_sex(file_name: str) -> Optional[str]:
         return "f"
     if "mlt" in file_name:
         return "m"
+    if "blt" in file_name:
+        return "b"
     return None
-
 
 
 def process_table(file_name: str, file_data_str: str) -> None:
     file_data = file_data_str.split("\n")
-    
+
     header_metadata = extract_file_header_data(file_data[0])
 
-    country = ensure_country(header_metadata['country'])
-    dataset_name = header_metadata['dataset_name']
+    country = ensure_country(header_metadata["country"])
+    dataset_name = header_metadata["dataset_name"]
     sex = get_sex(file_name)
 
     table_headers = None
@@ -173,31 +175,20 @@ def process_table(file_name: str, file_data_str: str) -> None:
             if len(row) > 1:
                 table_headers = row
                 continue
-        
-        dict_row = {x:y for x,y in zip(table_headers, row)}
 
-        probability = row[3]
-        if probability == ".":
-            probability = 100
+        # Main parsing section: Read line, output statistics
+        # NOTE:
+        # - Wont always have sex. Sometimes must consult file_name
+        # - Won't always have age. Some series don't have an age component (eg: Life expectancy at birth)
 
-        if row[5] == ".":
-            p_alive: float = 0.0
-        else:
-            p_alive = int(row[5]) / 100000
+        dict_row = {x: y for x, y in zip(table_headers, row)}
 
-        if "+" in age:
+        year = dict_row.get("Year")
+        age = dict_row.get("Age")
+        statistic_names = [x for x in dict_row.keys() if x not in ["Year", "Age"]]
+
+        if age is not None and "+" in age:
             age = age[0:-1]
-
-        params = {
-            "country": country,
-            "sex": sex,
-            "year": year,
-            "age": age,
-            "probability": probability,
-            "cumulative_probability": p_alive,
-        }
-
-        ensure_life_table_entry(params)
 
 
 def ensure_country(country: str) -> Country:
