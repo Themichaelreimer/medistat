@@ -3,7 +3,7 @@ from django.db import transaction
 
 # Note: mypy CLI says it can't find the stubs for requests, even though they are installed and are also even successfully used in mypy typechecks
 import requests  # type:ignore
-from hmd.models import Country, LifeTable
+from hmd.models import Country, LifeTable, MortalitySeries, MortalityDatum
 from datalake.models import DataSource, RawData
 
 import os
@@ -69,7 +69,7 @@ def transform(raw_data: Optional[Iterable[RawData]] = None) -> int:
             if not ".txt" in filename or not "1x1" in filename:
                 continue
             data = zip.open(filename).read().decode("utf-8")
-            process_table(filename, data)
+            process_table(data_record, filename, data)
         data_record.mark_as_processed()
     return 0
 
@@ -148,20 +148,18 @@ def get_sex(file_name: str) -> Optional[str]:
     returns m or f based on input, which should be a file name
     """
     if "flt" in file_name:
-        return "f"
+        return "Female"
     if "mlt" in file_name:
-        return "m"
-    if "blt" in file_name:
-        return "b"
+        return "Male"
     return None
 
 
-def process_table(file_name: str, file_data_str: str) -> None:
+def process_table(raw_data: RawData, file_name: str, file_data_str: str) -> None:
     file_data = file_data_str.split("\n")
 
     header_metadata = extract_file_header_data(file_data[0])
 
-    country = ensure_country(header_metadata["country"])
+    # country = ensure_country(header_metadata['country'])
     dataset_name = header_metadata["dataset_name"]
     sex = get_sex(file_name)
 
@@ -186,9 +184,23 @@ def process_table(file_name: str, file_data_str: str) -> None:
         year = dict_row.get("Year")
         age = dict_row.get("Age")
         statistic_names = [x for x in dict_row.keys() if x not in ["Year", "Age"]]
+        for statistic_name in statistic_names:
+            entry_value = dict_row[statistic_name]
+
+            if statistic_name in ALIASES:
+                statistic_name = ALIASES[statistic_name]
+
+            if statistic_name in ["Male", "Female"]:
+                sex = statistic_name
+
+        tags = [header_metadata["country"], sex, dataset_name]
+        tags = [t for t in tags if t]
 
         if age is not None and "+" in age:
             age = age[0:-1]
+
+        series = MortalitySeries.quiet_get_or_create(tags)
+        datum = {}
 
 
 def ensure_country(country: str) -> Country:
