@@ -50,7 +50,10 @@ class RawData(models.Model):
         with open(full_path, "wb") as outfile:
             outfile.write(raw_data)
 
-        RawData.objects.create(source=source, published_timestamp=published_timestamp, file_path=full_path, link=link, md5_hash=md5_digest)
+        result = RawData.objects.create(
+            source=source, published_timestamp=published_timestamp, file_path=full_path, link=link, md5_hash=md5_digest
+        )
+        return result
 
     @staticmethod
     def has_already(source: DataSource, raw_data: Union[str, bytes]) -> bool:

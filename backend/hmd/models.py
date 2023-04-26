@@ -66,25 +66,25 @@ class MortalitySeries(models.Model):
         indexes = [models.Index(fields=["tags"])]
 
     @staticmethod
-    def create(tag_names: List[str]) -> "MortalitySeries":
+    def quiet_get_or_create(tag_names: List[str]) -> "MortalitySeries":
         tag_names.sort()
         key = f'mortality_series_{",".join([t for t in tag_names])}'
         if res := cache.get(key):
             return res
 
-        tags = [MortalityTag.quiet_get_or_create(t) for t in tag_names]
+        tags = [MortalityTag.quiet_get_or_create(t).id for t in tag_names]
         res, _ = MortalitySeries.objects.get_or_create(tags=tags)
 
         cache.set(key, res)
         return res
 
 
-# Represents an nxm matrix, where n or m may be 1
+# Represents an element of a nxm matrix, where n or m may be 1
 class MortalityDatum(models.Model):
     age = models.IntegerField(null=True)
     series = models.ForeignKey(MortalitySeries, on_delete=models.CASCADE)
     date = models.DateField()
-    value = models.DecimalField(max_digits=12, decimal_places=6)
+    value = models.DecimalField(max_digits=18, decimal_places=9)
     raw_data = models.ForeignKey(RawData, null=True, on_delete=models.CASCADE)
 
     class Meta:

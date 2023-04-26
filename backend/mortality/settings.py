@@ -25,6 +25,7 @@ SECRET_KEY = "*j0rudf=32cn+_)bw+r9j7wo)&q40r0-k5dlml5i278en%yz10"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", False)
+TEST = "test" in sys.argv
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
@@ -113,12 +114,19 @@ DATABASES = {
     }
 }
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://:{os.environ.get('REDIS_PASS','redis_pass')}@cache.{os.environ.get('HOST','localhost')}",
+if TEST:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+        }
     }
-}
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": f"redis://:{os.environ.get('REDIS_PASS','redis_pass')}@cache.{os.environ.get('HOST','localhost')}",
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
