@@ -21,8 +21,11 @@ import hmd.views as hmd_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    # Old version of api
     path("diseases/", wiki_views.disease_index),
     path("lifetables/", hmd_views.get_life_table),
     path("lifetable_years/", hmd_views.get_lifetable_years),
     path("lifetables_countries/", hmd_views.get_countries),
+    # New version of api
+    path("hmd/series_index/", hmd_views.series_index),
 ]

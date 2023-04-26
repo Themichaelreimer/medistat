@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.conf import settings
-from hmd.models import Country, LifeTable
+from hmd.models import Country, LifeTable, MortalityDatum, MortalitySeries, MortalityTag
 
 
 def add_access_control_headers(resp: JsonResponse) -> JsonResponse:
@@ -70,3 +70,23 @@ def get_life_table(request: HttpRequest) -> JsonResponse:
     result = add_access_control_headers(JsonResponse(life_table, safe=False))
     cache.set(cache_key, result)
     return result
+
+
+@csrf_exempt
+def series_index(request: HttpRequest) -> JsonResponse:
+    cache_key = "series_index"
+    if result := cache.get(cache_key):
+        return result
+
+    result = [x for x in MortalitySeries.objects.order_by("id").values("id", "tags")]
+    for r in result:
+        r["tags"] = [x[0] for x in MortalityTag.objects.filter(id__in=r["tags"]).values_list("name")]
+
+    result = add_access_control_headers(JsonResponse(result, safe=False))
+    cache.set(cache_key, result)
+    return result
+
+
+@csrf_exempt
+def get_series_data(request: HttpRequest) -> JsonResponse:
+    pass

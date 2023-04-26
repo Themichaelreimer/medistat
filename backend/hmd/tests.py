@@ -1,5 +1,6 @@
-from django.test import TestCase, SimpleTestCase
+from django.test import TestCase, SimpleTestCase, TransactionTestCase
 from django.utils import timezone
+from django.test import Client
 
 import os, importlib
 import datetime
@@ -176,3 +177,40 @@ Year          Age         mx       qx    ax      lx      dx      Lx       Tx    
             },
             dataset,
         )
+
+
+class TestViews(TransactionTestCase):
+    reset_sequences = True
+
+    def setUp(self) -> None:
+        self.canada = MortalityTag.objects.create(name="Canada")
+        self.male = MortalityTag.objects.create(name="Male")
+        self.female = MortalityTag.objects.create(name="Female")
+        self.some_stat = MortalityTag.objects.create(name="Some stat")
+
+        self.series_1 = MortalitySeries.objects.create(tags=[self.canada.id, self.male.id, self.some_stat.id])
+        self.series_2 = MortalitySeries.objects.create(tags=[self.canada.id, self.female.id, self.some_stat.id])
+
+        self.raw_data = RawData.objects.create()
+
+        self.data_points = []
+        for i in range(5):
+            self.data_points.append(
+                MortalityDatum.objects.create(
+                    age=i, series=self.series_1, value=i, raw_data=self.raw_data, date=datetime.date(year=2000, month=1, day=1)
+                )
+            )
+
+    def test_series_index(self) -> None:
+        client = Client()
+        resp = client.get("/hmd/series_index/")
+
+        self.assertEquals(resp.status_code, 200)
+        content = resp.json()
+
+        self.assertEquals(len(content), 2)
+
+        self.assertEquals(content, [{"id": 1, "tags": ["Canada", "Male", "Some stat"]}, {"id": 2, "tags": ["Canada", "Female", "Some stat"]}])
+
+    def test_get_series_data(self) -> None:
+        pass
