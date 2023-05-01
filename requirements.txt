@@ -1,5 +1,5 @@
 black==23.3.0
-django-stubs==1.16.0
+django-stubs==4.2.0
 django-stubs-ext==0.8.0
 docker==6.0.1
 mypy==1.2.0
