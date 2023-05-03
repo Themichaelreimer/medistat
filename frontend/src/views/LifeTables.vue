@@ -151,6 +151,7 @@ export default {
 
   },
   mounted: function(){
+    console.log("hi");
     this.getCountries();
     this.countriesLoading=false;
   },
@@ -185,3 +186,4 @@ export default {
     }
   }
 }
+</script>
