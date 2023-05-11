@@ -1,7 +1,7 @@
 <template>
   <div id="hi">
     <br/>
-    Welcome 
+    Welcome
   </div>
 </template>
 
@@ -9,7 +9,7 @@
 // @ is an alias to /src
 
 export default {
-  name: 'Home',
+  name: 'Diseases',
 }
 </script>
 

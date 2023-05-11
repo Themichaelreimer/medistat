@@ -1,39 +1,17 @@
 <template>
   <v-app>
     <div id="app">
-      <v-app-bar
-        dense
-      >
-        <div id="nav">
-          <span>MediStat</span> | 
-          <router-link to="/diseases">Diseases</router-link> | 
-          <router-link to="/lifetables">Life Tables</router-link> | 
+        <div id="nav" class="glass dense">
+          <div class="left-nav-items">
+            <span>Medistat.online</span>
+            <router-link to="/diseases">Diseases</router-link>
+            <router-link to="/lifetables">Life Tables</router-link>
+          </div>
+          <div class="right-nav-items">
+            <a href="https://github.com/Themichaelreimer/medistat">See me on GitHub!</a>
+          </div>
         </div>
-      </v-app-bar>
       <router-view/>
     </div>
   </v-app>
 </template>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #E53935;
-}
-</style>

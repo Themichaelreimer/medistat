@@ -3,7 +3,7 @@
     <br/>
 
   <v-container>
-    <v-card class="pa-6 ma-6">
+    <v-card class="pa-6 ma-6 glass">
      <v-card-title>
         Life Tables
     </v-card-title>
@@ -151,6 +151,7 @@ export default {
 
   },
   mounted: function(){
+    console.log("hi");
     this.getCountries();
     this.countriesLoading=false;
   },
@@ -178,18 +179,11 @@ export default {
     },
   },
   watch: {
-    tables: { 
+    tables: {
       handler: function(){
-        this.refresh() 
+        this.refresh()
       }
     }
   }
 }
 </script>
-
-<style scoped>
-#hi{
-  top:50%;
-  font-weight:lighter;
-}
-</style>
