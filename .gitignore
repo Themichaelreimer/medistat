@@ -3,6 +3,7 @@ __pycache__
 .env
 .DS_Store
 .mypy_cache
+frontend/node_modules
 venv
 dump.json
 backend/.tmp
