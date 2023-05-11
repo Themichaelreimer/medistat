@@ -1,11 +1,11 @@
-import string
-
 from django.http import JsonResponse, HttpRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
-from django.core.cache.utils import make_template_fragment_key
 from django.conf import settings
+import json
+
 from hmd.models import Country, LifeTable, MortalityDatum, MortalitySeries, MortalityTag
+from hmd import helpers
 
 
 def add_access_control_headers(resp: JsonResponse) -> JsonResponse:
@@ -18,6 +18,13 @@ def add_access_control_headers(resp: JsonResponse) -> JsonResponse:
     response["Access-Control-Max-Age"] = "1000"
     response["Access-Control-Allow-Headers"] = "X-Requested-With, Content-Type"
     return response
+
+
+def generate_error_response(error_message: str, status_code: int = 400) -> JsonResponse:
+    """
+    Returns a JsonResponse like: {'error': error_message}
+    """
+    return add_access_control_headers(JsonResponse({"error": error_message}, status=status_code))
 
 
 @csrf_exempt
@@ -55,7 +62,7 @@ def get_life_table(request: HttpRequest) -> JsonResponse:
     sex = request.POST.get("sex", "").lower()[0]
     year = request.POST.get("year")
     cache_key = f"{country}{year}{sex}".lower()
-    cache_key = "".join([c for c in cache_key if c in string.ascii_lowercase or c in string.digits])
+    cache_key = helpers.sanitize_cache_key(cache_key)
 
     if result := cache.get(cache_key):
         return result
@@ -89,4 +96,20 @@ def series_index(request: HttpRequest) -> JsonResponse:
 
 @csrf_exempt
 def get_series_data(request: HttpRequest) -> JsonResponse:
-    pass
+    body = json.loads(request.body)
+    series_id = body.get("series_id")
+    cache_key = f"series_index_{series_id}"
+    if result := cache.get(cache_key):
+        return result
+
+    # Pythonic atoi
+    try:
+        series_id = int(series_id)
+    except:
+        return generate_error_response(f"series_id `{series_id}` must be an integer")
+
+    result = list(MortalityDatum.objects.filter(series_id=series_id).order_by("-date", "age").values("age", "date", "value"))
+
+    result = add_access_control_headers(JsonResponse(result, safe=False))
+    cache.set(cache_key, result)
+    return result

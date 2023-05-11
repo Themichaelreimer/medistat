@@ -4,6 +4,7 @@ from django.test import Client
 
 import os, importlib
 import datetime
+import json
 from types import ModuleType
 from typing import Optional, Iterable, List, Set
 from decimal import Decimal
@@ -182,6 +183,14 @@ Year          Age         mx       qx    ax      lx      dx      Lx       Tx    
 class TestViews(TransactionTestCase):
     reset_sequences = True
 
+    @staticmethod
+    def __generate_faked_data_value(i: int) -> Decimal:
+        """
+        An arbitrary pure function f: Z -> R
+        Used to generate fake data in a predictable way
+        """
+        return Decimal(i**2)
+
     def setUp(self) -> None:
         self.canada = MortalityTag.objects.create(name="Canada")
         self.male = MortalityTag.objects.create(name="Male")
@@ -191,13 +200,20 @@ class TestViews(TransactionTestCase):
         self.series_1 = MortalitySeries.objects.create(tags=[self.canada.id, self.male.id, self.some_stat.id])
         self.series_2 = MortalitySeries.objects.create(tags=[self.canada.id, self.female.id, self.some_stat.id])
 
-        self.raw_data = RawData.objects.create()
+        self.data_source = DataSource.objects.create(name="Test Source")
+        self.raw_data = RawData.objects.create(
+            published_timestamp=timezone.now(), loaded_timestamp=timezone.now(), processed_timestamp=timezone.now(), source=self.data_source
+        )
 
         self.data_points = []
         for i in range(5):
             self.data_points.append(
                 MortalityDatum.objects.create(
-                    age=i, series=self.series_1, value=i, raw_data=self.raw_data, date=datetime.date(year=2000, month=1, day=1)
+                    age=i,
+                    series=self.series_1,
+                    value=self.__generate_faked_data_value(i),
+                    raw_data=self.raw_data,
+                    date=datetime.date(year=2000, month=1, day=1),
                 )
             )
 
@@ -213,4 +229,17 @@ class TestViews(TransactionTestCase):
         self.assertEquals(content, [{"id": 1, "tags": ["Canada", "Male", "Some stat"]}, {"id": 2, "tags": ["Canada", "Female", "Some stat"]}])
 
     def test_get_series_data(self) -> None:
-        pass
+        # Idea: check that our query matches the data returned by the API
+        series_data_from_db = MortalityDatum.objects.filter(series_id=1).order_by("-date", "age").values("date", "age", "value")
+
+        client = Client()
+        resp = client.post("/hmd/series_data/", json.dumps({"series_id": 1}), format="json", content_type="application/json")
+
+        self.assertEquals(resp.status_code, 200, resp.content)
+        content = resp.json()
+
+        self.assertEquals(len(content), len(series_data_from_db))
+        for i in range(len(content)):
+            self.assertEquals(Decimal(series_data_from_db[i]["value"]), Decimal(content[i]["value"]))
+            self.assertEquals(series_data_from_db[i]["age"], content[i]["age"])
+            self.assertEquals(series_data_from_db[i]["date"].strftime("%Y-%m-%d"), content[i]["date"])

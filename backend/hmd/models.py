@@ -6,6 +6,8 @@ from datalake.models import RawData
 
 from typing import List
 
+from hmd import helpers
+
 SEX_CHOICES = [("m", "m"), ("f", "f"), ("a", "a")]
 
 
@@ -48,6 +50,7 @@ class MortalityTag(models.Model):
         Identical to get_or_create, except it only returns the object and may be cached
         """
         key = f"mortality_tag_{name}"
+        key = helpers.sanitize_cache_key(key)
         if res := cache.get(key):
             return res
 
@@ -69,6 +72,7 @@ class MortalitySeries(models.Model):
     def quiet_get_or_create(tag_names: List[str]) -> "MortalitySeries":
         tag_names.sort()
         key = f'mortality_series_{",".join([t for t in tag_names])}'
+        key = helpers.sanitize_cache_key(key)
         if res := cache.get(key):
             return res
 

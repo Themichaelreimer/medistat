@@ -28,4 +28,5 @@ urlpatterns = [
     path("lifetables_countries/", hmd_views.get_countries),
     # New version of api
     path("hmd/series_index/", hmd_views.series_index),
+    path("hmd/series_data/", hmd_views.get_series_data),
 ]
