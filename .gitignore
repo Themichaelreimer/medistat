@@ -6,3 +6,4 @@ __pycache__
 venv
 dump.json
 backend/.tmp
+frontend/node_modules
