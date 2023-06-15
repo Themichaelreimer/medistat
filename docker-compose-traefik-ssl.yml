@@ -20,7 +20,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.reverseproxy_${PROJECT_NAME}.rule=Host(`traefik.${HOST}`)
-      - traefik.http.routers.reverseproxy_${PROJECT_NAME}.entrypoints=web,secure
+      - traefik.http.routers.reverseproxy_${PROJECT_NAME}.entrypoints=web,secure,db_entrypoint
       - traefik.http.routers.reverseproxy_${PROJECT_NAME}.tls=${SSL}
       - traefik.http.routers.reverseproxy_${PROJECT_NAME}.tls.certresolver=myresolver
       - traefik.http.services.reverseproxy_${PROJECT_NAME}.loadbalancer.server.port=8080

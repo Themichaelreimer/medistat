@@ -1,5 +1,7 @@
 import os
 import sys
+import psycopg2
+from multiprocessing import Process
 
 from .common.docker_helpers import get_docker_containers_by_name
 
@@ -9,6 +11,7 @@ from .common.docker_helpers import get_docker_containers_by_name
 
 EXPECTED_DATABASE_CONTAINER_NAME = "postgres"
 EXPECTED_BACKEND_CONTAINER_NAME = "backend"
+CONNECTION_TIMEOUT = 10
 
 
 def run() -> None:
@@ -23,7 +26,9 @@ def run() -> None:
             exit(0)
 
     dbname = os.environ.get("DATABASE_NAME")
+    hostname = "db." + os.environ.get("HOST", "localhost")
     postgres_user = os.environ.get("POSTGRES_USERNAME")
+    postgres_pass = os.environ.get("POSTGRES_PASSWORD")
 
     # Used to drop and re-create using .env file
     database_container_ids = get_docker_containers_by_name(EXPECTED_DATABASE_CONTAINER_NAME, filter_by_project_name=True)
@@ -39,10 +44,25 @@ def run() -> None:
     os.system(f'docker exec {database_container_id} bash -c "su postgres && dropdb -U {postgres_user} --if-exists {dbname}"')
 
     print("Creating new database...")
-    os.system(f'docker exec {database_container_id} bash -c "su postgres && createdb -U {postgres_user} {dbname}"')
+    os.system(f'docker exec {database_container_id} bash -c "su postgres && createdb -U {postgres_user} {dbname} --password {postgres_pass}"')
 
     print("Running migrations...")
     os.system(f'docker exec {backend_container_id} bash -c "source venv-backend/bin/activate && python3 manage.py migrate"')
+
+    print("Testing connection...")
+
+    test_process = Process(target=test_db_connection, name="test_db_connection")
+    test_process.start()
+    test_process.join(timeout=CONNECTION_TIMEOUT)
+    test_process.terminate()
+
+    if test_process.exitcode is None:
+        print(f"Could not connect to database at {hostname}: connection timeout.")
+        exit(1)
+    elif test_process.exitcode == 0:
+        print("Connection successful!")
+    else:
+        print("Connection failed")
 
     if "--sample-data" in sys.argv or "-D" in sys.argv:
         print("Importing sample data...")
@@ -51,3 +71,17 @@ def run() -> None:
         )
 
     print("Done")
+
+
+def test_db_connection() -> None:
+    dbname = os.environ.get("DATABASE_NAME")
+    hostname = "db." + os.environ.get("HOST", "localhost")
+    postgres_user = os.environ.get("POSTGRES_USERNAME")
+    postgres_pass = os.environ.get("POSTGRES_PASSWORD")
+
+    try:
+        conn = psycopg2.connect(dbname=dbname, host=hostname, user=postgres_user, password=postgres_pass)
+        conn.close()
+    except Exception as e:
+        print(f"Connection failed: {e}")
+        exit(1)

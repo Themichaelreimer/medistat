@@ -1,8 +1,9 @@
 from django.db import models
+from decimal import Decimal
 
 # Create your models here.
 """
-    The models in this file are deprecated. From Phase2 and onwards, Diseases should be modeled 
+    The models in this file are deprecated. From Phase2 and onwards, Diseases should be modeled
     using disease/models.py. The models there are more general and better fit a
     'multiple values from different sources' model
 """
@@ -16,149 +17,112 @@ class Article(models.Model):
     title = models.CharField(default="", max_length=128, unique=True)
     first_sentence = models.TextField(default="")
     text = models.TextField(default="")
+    link = models.TextField(default="")
     disease = models.ForeignKey("WikiDisease", null=True, default=None, on_delete=models.SET_NULL)
+    processed_timestamp = models.DateTimeField(null=True, default=None)
+
+    class Meta:
+        indexes = [
+            models.Index(
+                fields=["processed_timestamp"]
+            )  # Used to tell what still needs to be processed - This is the only select query for this table
+        ]
 
 
-class WikiFrequency(models.Model):
-    region_name = models.CharField(default="", max_length=255)
-    frequency_int = models.BigIntegerField(null=True)
-    frequency_ratio = models.FloatField(null=True)
+class Fact(models.Model):
+    """
+    This class represents a piece of non-timeseries information about a disease
+    """
 
-    def display_value(self):
-        val = self.frequency_ratio if self.frequency_ratio else self.frequency_int / 7500000000
-        return unit_rule(100 * val)
+    disease = models.ForeignKey("WikiDisease", on_delete=models.CASCADE)
+    fact_type = models.ForeignKey("FactType", on_delete=models.CASCADE)
+    value = models.ForeignKey("FlexibleValue", on_delete=models.CASCADE)
+    citation_text = models.TextField(default="")
+    source_article = models.ForeignKey("Article", null=True, on_delete=models.SET_NULL)
 
-    def __str__(self):
-        if self.frequency_int:
-            return f"{self.frequency_int}"
-        return f"{self.frequency_ratio}"
+    def to_dict(self) -> dict:
+        return {
+            "disease": self.disease.name,
+            "fact_type": self.fact_type.name,
+            "citation_text": self.citation_text,
+            "article_link": self.source_article.link
+            ** self.value.to_dict(),  # Adds the key-value pairs from the value's to_dict() to this dict to avoid nesting objects
+        }
 
-
-class WikiDeath(models.Model):
-    region_name = models.CharField(default="", max_length=255)
-    frequency_int = models.BigIntegerField(null=True)
-    frequency_ratio = models.FloatField(null=True)
-
-    def display_value(self):
-        val = self.frequency_ratio if self.frequency_ratio else self.frequency_int / 7500000000
-        return unit_rule(100 * val)
-
-    def __str__(self):
-        if self.frequency_int:
-            return f"{self.frequency_int}"
-        return f"{self.frequency_ratio}"
+    class Meta:
+        indexes = [models.Index(fields=["disease"]), models.Index(fields=["fact_type"]), models.Index(fields=["disease", "fact_type"])]
 
 
-class WikiCaseFatalityRate(models.Model):
-    region_name = models.CharField(default="", max_length=255)
-    frequency_int = models.BigIntegerField(null=True)
-    frequency_ratio = models.FloatField(null=True)
+class FactType(models.Model):
+    """
+    The name of the kind of a kind of fact (usually a statistic). Eg, Symptoms, mortality rate, frequency, cases per year, etc.
+    """
 
-    def __str__(self):
-        if self.frequency_int:
-            return f"{self.frequency_int}"
-        return f"{self.frequency_ratio}"
+    name = models.CharField(max_length=127, unique=True)
 
 
-class WikiMortalityRate(models.Model):
-    region_name = models.CharField(default="", max_length=255)
-    frequency_int = models.BigIntegerField(null=True)
-    frequency_ratio = models.FloatField(null=True)
+class FlexibleValue(models.Model):
+    """
+    This class represents a value that can be reported in a fuzzy way that typically has meaning to humans, but poor computational meaning.
+    Examples include:
+        - 1,000,000
+        - ~1,000,000
+        - 500 to 1000
+        - less than 5000
 
-    def display_value(self):
-        if self.frequency_ratio:
-            return f"{self.frequency_ratio*100} %"
-        return f"{self.frequency_int * 100 / 7500000000} %"
+    The data model works like this:
+        - Where a range of values is needed, populate min_range and max_range
+        - Where a single value is needed, populate single_value
+            - If a modifier is needed for a single value for more context, use modifier column. Options are: `<`, `>`, and `~`. Empty implies `=`.
+        - Populate value type with single or range.
 
-    def __str__(self):
-        if self.frequency_int:
-            return f"{self.frequency_int}"
-        return f"{self.frequency_ratio}"
+    """
 
+    class ValueType(models.TextChoices):
+        SINGLE = "single", "single value"
+        RANGE = "range", "range value"
+        STRING = "string", "string value"
 
-class WikiSymptom(models.Model):
-    name = models.CharField(default="", max_length=512)
+    class Modifier(models.TextChoices):
+        LESS_THAN = "<", "<"
+        MORE_THAN = ">", ">"
+        EXACTLY = "", ""
+        ROUGHLY = "~", "~"
 
-    def __str__(self):
-        return self.name.title()
+    single_value = models.DecimalField(max_digits=32, decimal_places=16, null=True, blank=True)
+    string_value = models.TextField(null=True, blank=True)
+    min_range = models.DecimalField(max_digits=32, decimal_places=16, null=True, blank=True)
+    max_range = models.DecimalField(max_digits=32, decimal_places=16, null=True, blank=True)
+    value_type = models.CharField(max_length=6, choices=ValueType.choices, default=ValueType.SINGLE)
+    modifier = models.CharField(max_length=1, choices=Modifier.choices, default=Modifier.EXACTLY)
 
+    def sorting_key(self) -> Decimal:
+        """
+        Returns a decimal intended to be used to sort values by, factoring in the flexibility of this data model.
+        If the valuetype is a single value, then single_value is the key. Otherwise, the average of min_range and max_range is used.
+        """
+        if self.value_type == FlexibleValue.ValueType.SINGLE:
+            return self.single_value
+        elif self.value_type == FlexibleValue.ValueType.STRING:
+            return 0  # Special case is needed to group all strings together in sorting by value
+        return (self.max_range + self.min_range) / 2
 
-class WikiRiskFactor(models.Model):
-    name = models.CharField(default="", max_length=512)
+    def to_dict(self) -> dict:
+        """
+        Returns a dictionary representing this object, as it's intended to be returned in the API
+        """
+        return {"value": str(self), "sorting_key": self.sorting_key(), "value_type": self.value_type}
 
-    def __str__(self):
-        return self.name.title()
-
-
-class WikiTreatment(models.Model):
-    name = models.CharField(default="", max_length=512)
-
-    def __str__(self):
-        return self.name.title()
-
-
-class WikiPrevention(models.Model):
-    name = models.CharField(default="", max_length=512)
-
-    def __str__(self):
-        return self.name.title()
-
-
-class WikiDiagnosticMethod(models.Model):
-    name = models.CharField(default="", max_length=512)
-
-    def __str__(self):
-        return self.name.title()
-
-
-class WikiMedication(models.Model):
-    name = models.CharField(default="", max_length=512)
-
-    def __str__(self):
-        return self.name.title()
-
-
-class WikiSpecialty(models.Model):
-    name = models.CharField(default="", max_length=512)
-
-    def __str__(self):
-        return self.name.title()
-
-
-class WikiCause(models.Model):
-    name = models.CharField(default="", max_length=512)
-
-    def __str__(self):
-        return self.name.title()
+    def __str__(self) -> str:
+        if self.value_type == FlexibleValue.ValueType.SINGLE:
+            return unit_rule(self.single_value)
+        return f"{unit_rule(self.min_range)} - {unit_rule(self.max_range)}"
 
 
 class WikiDisease(models.Model):
-    """
-    This class represents the 'endpoint' in the wikipedia parsing pipeline. Entries in this table
-    are considered complete.
-
-    I expect almost all the many to many's to have at most one entry, but it was
-    designed this way to handle potentially conflicting information. It IS Wikipedia
-    after all. And then I might be able to extend this model for pubmed too
-    """
-
     name = models.CharField(default="", max_length=255, unique=True)
     other_names = models.TextField(default="")
     icd10 = models.CharField(null=True, max_length=64)
-    specialty = models.ManyToManyField(WikiSpecialty)
-    frequency = models.ForeignKey(WikiFrequency, null=True, on_delete=models.SET_NULL)
-    mortality_rate = models.ForeignKey(WikiCaseFatalityRate, null=True, on_delete=models.SET_NULL)
-    case_fatality_rate = models.ForeignKey(WikiMortalityRate, null=True, on_delete=models.SET_NULL)
-    deaths = models.ForeignKey(WikiDeath, null=True, on_delete=models.SET_NULL)
-    symptoms = models.ManyToManyField(WikiSymptom)
-    risk_factors = models.ManyToManyField(WikiRiskFactor)
-    treatments = models.ManyToManyField(WikiTreatment)
-    preventions = models.ManyToManyField(WikiPrevention)
-    diagnostic_methods = models.ManyToManyField(WikiDiagnosticMethod)
-    medications = models.ManyToManyField(WikiMedication)
-    causes = models.ManyToManyField(WikiCause)
-    # duration? usual onset? types?
-    # TODO: Differential Diagnosis should be scrapable
 
     def __str__(self):
         return self.name
@@ -185,23 +149,6 @@ class WikiDisease(models.Model):
             "deaths": deaths.display_value() if deaths else "Unknown",
             "mortality_rate": mortality_rate,
         }
-
-    def print(self):
-        print("======================================================")
-        print(self.name)
-        print(self.specialty)
-        print(self.frequency)
-        print(self.mortality_rate)
-        print(self.case_fatality_rate)
-        print(self.deaths)
-        print(self.symptoms)
-        print(self.risk_factors)
-        print(self.treatments)
-        print(self.preventions)
-        print(self.diagnostic_methods)
-        print(self.medications)
-        print(self.causes)
-        print("=====================================================")
 
 
 def unit_rule(val) -> str:

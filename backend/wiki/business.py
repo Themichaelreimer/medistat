@@ -2,7 +2,7 @@ import re
 from typing import Union, List
 
 from django.core.cache import cache
-from wiki.query import *
+import wiki.query as query
 
 
 # region scraper
@@ -24,30 +24,7 @@ def is_int(text: str) -> bool:
         return False
 
 
-def pre_process_string(text: str) -> str:
-    """
-    Preprocesses text by stripping spaces, lowercasing, and removing wiki citation brackets [0][1]
-    :param text: input
-    :return: output
-    """
-    text = text.strip().lower()
-    return re.sub(r"(\[.*\])", r"", text)
-
-
-def __extract_objects(comma_seperated_list: str, function) -> list:
-    """
-    Given a string representing a set of objects, and a function that maps the tokens to objects,
-    this function returns a list of the objects represented by that string
-    :param comma_seperated_list: string representing objects seperated by spaces
-    :param function: function that maps a token to an object
-    :return: list of objects
-    """
-    props = comma_seperated_list.split(",")
-    objs = [function(pre_process_string(x)) for x in props]
-    return objs
-
-
-def __combine_adjacent_numbers(tokens: List[str]) -> List[str]:
+def combine_adjacent_numbers(tokens: List[str]) -> List[str]:
     """
     Given a list of tokens, if any two adjacent tokens are numbers, they are combined by multiplication
     :param tokens: Tokenized string
@@ -69,7 +46,7 @@ def __combine_adjacent_numbers(tokens: List[str]) -> List[str]:
     return result
 
 
-def __try_recognise_ratio(text: str) -> Union[float, None]:
+def try_recognise_ratio(text: str) -> Union[float, None]:
     """
     If a ratio can be recognised in the input string, that ratio is returned. None otherwise
     :param text: input
@@ -86,7 +63,7 @@ def __try_recognise_ratio(text: str) -> Union[float, None]:
     tokens = [x for x in input.split()]
 
     # Multiplies adjacent numbers and combines the tokens, eg ['2', '1000', 'per' 'year' -> '2000', 'per', 'year']
-    tokens = __combine_adjacent_numbers(tokens)
+    tokens = combine_adjacent_numbers(tokens)
 
     numerator = None
     should_divide = False
@@ -108,10 +85,7 @@ def __try_recognise_ratio(text: str) -> Union[float, None]:
         return float(numerator)
 
 
-def create_article(params: dict) -> "Article":
-    return ensure_article(params)
-
-
+'''
 def handle_infobox(params: dict) -> "WikiDisease":
     disease = {}
 
@@ -212,11 +186,11 @@ def handle_infobox(params: dict) -> "WikiDisease":
         disease["causes"] = __extract_objects(causes, ensure_cause)
 
     return make_disease(disease)
-
+'''
 
 # endregion
 
-
+"""
 def get_disease_info(disease: WikiDisease) -> dict:
     result = {
         "name": disease.name,
@@ -235,10 +209,7 @@ def get_disease_info(disease: WikiDisease) -> dict:
         "causes": [x for x in disease.causes.all()],
     }
     return result
-
-
-def get_diseases_by_symptom(symptom: WikiSymptom) -> List[WikiDisease]:
-    return list(symptom.wikidisease_set.all())
+"""
 
 
 def get_diseases_list():
@@ -247,6 +218,6 @@ def get_diseases_list():
     if result:
         return result
 
-    result = [x.to_dict() for x in get_nonempty_diseases()]
+    result = [x.to_dict() for x in query.get_nonempty_diseases()]
     cache.set(cache_key, result)
     return result

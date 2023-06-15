@@ -25,6 +25,7 @@ SECRET_KEY = "*j0rudf=32cn+_)bw+r9j7wo)&q40r0-k5dlml5i278en%yz10"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", False)
+TEST = "test" in sys.argv
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
@@ -64,6 +65,7 @@ INSTALLED_APPS = [
     "hmd",
     "wiki",
     "disease",
+    "datalake",
 ]
 
 MIDDLEWARE = [
@@ -100,7 +102,8 @@ WSGI_APPLICATION = "mortality.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-PG_HOSTNAME = f"{os.environ['PROJECT_NAME']}_{os.environ['POSTGRES_HOSTNAME']}" if os.environ.get("POSTGRES_HOSTNAME") else "localhost"
+# PG_HOSTNAME = f"db.{os.environ['PROJECT_NAME']}_{os.environ['POSTGRES_HOSTNAME']}" if os.environ.get("POSTGRES_HOSTNAME") else "db.localhost"
+PG_HOSTNAME = f"db.{os.environ.get('HOST', 'localhost')}"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -111,12 +114,19 @@ DATABASES = {
     }
 }
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "127.0.0.1:11211",
+if TEST:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+        }
     }
-}
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": f"redis://:{os.environ.get('REDIS_PASS','redis_pass')}@cache.{os.environ.get('HOST','localhost')}",
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -170,3 +180,5 @@ LOGGING = {
         "level": "INFO",
     },
 }
+
+DATALAKE_PATH = os.environ.get("DATALAKE_PATH", "/datalake")

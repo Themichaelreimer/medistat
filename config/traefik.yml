@@ -11,14 +11,17 @@ entryPoints:
     address: ":80"
   secure:
     address: ":443"
+  db_entrypoint:
+    address: ":5432/tcp"
+  cache_entrypoint:
+    address: ":6379/tcp"
     http:
       tls:
         certResolver: myresolver
         domains:
           - main: ${HOST}
             sans: "*.${HOST}"
-#  asdf:
-#    address: ":8080"
+
 
 log:
   level: DEBUG

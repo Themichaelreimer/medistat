@@ -1,0 +1,82 @@
+{
+  "infoBoxes": [
+    {
+      "frequency": "0.0001",
+      "mortality_rate": "12.5",
+      "name": "Fake Virus A2001",
+      "specialty": "Infectious Disease"
+    },
+    {
+      "frequency": "0.05",
+      "mortality_rate": "0",
+      "name": "Fake Virus A2002",
+      "specialty": "Infectious Disease"
+    },
+    {
+      "frequency": "0.0002",
+      "mortality_rate": "0.0008",
+      "name": "Fake Virus A2003",
+      "specialty": "Infectious Disease"
+    },
+    {
+      "frequency": "0.01",
+      "mortality_rate": "0.000125",
+      "name": "Fake Virus A2004",
+      "specialty": "Infectious Disease"
+    },
+    {
+      "frequency": "0.0003",
+      "mortality_rate": "12.5",
+      "name": "Fake Virus A2005",
+      "specialty": "Infectious Disease"
+    },
+    {
+      "frequency": "0.0005",
+      "mortality_rate": "0.98",
+      "name": "Fake Virus A2006",
+      "specialty": "Infectious Disease"
+    },
+    {
+      "frequency": "0.0001",
+      "mortality_rate": "0.02",
+      "name": "Fake Virus A2007",
+      "specialty": "Infectious Disease"
+    },
+    {
+      "frequency": "0.0001",
+      "mortality_rate": "0.1",
+      "name": "Fake Virus A2008",
+      "specialty": "Infectious Disease"
+    },
+    {
+      "frequency": "0.0001",
+      "mortality_rate": "4",
+      "name": "Fake Virus A2009",
+      "specialty": "Infectious Disease"
+    },
+    {
+      "frequency": "0.001",
+      "mortality_rate": "0.00000004",
+      "name": "Fake Virus A2010",
+      "specialty": "Infectious Disease"
+    },
+    {
+      "frequency": "0.0002",
+      "mortality_rate": "1.5",
+      "name": "Fake Virus A2012",
+      "specialty": "Infectious Disease"
+    },
+    {
+      "frequency": "0.0001",
+      "mortality_rate": "0.5",
+      "name": "Fake Virus A2013",
+      "specialty": "Infectious Disease"
+    },
+    {
+      "frequency": "0.000004",
+      "mortality_rate": "80",
+      "name": "Fake Virus A2014",
+      "specialty": "Infectious Disease"
+    }
+  ]
+}

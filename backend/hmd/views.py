@@ -1,14 +1,14 @@
-import string
-
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.core.cache import cache
-from django.core.cache.utils import make_template_fragment_key
 from django.conf import settings
-from hmd.models import *
+import json
+
+from hmd.models import Country, LifeTable, MortalityDatum, MortalitySeries, MortalityTag
+from hmd import helpers
 
 
-def add_access_control_headers(resp):
+def add_access_control_headers(resp: JsonResponse) -> JsonResponse:
     response = resp
     if settings.DEBUG:
         response["Access-Control-Allow-Origin"] = "*"
@@ -20,11 +20,17 @@ def add_access_control_headers(resp):
     return response
 
 
+def generate_error_response(error_message: str, status_code: int = 400) -> JsonResponse:
+    """
+    Returns a JsonResponse like: {'error': error_message}
+    """
+    return add_access_control_headers(JsonResponse({"error": error_message}, status=status_code))
+
+
 @csrf_exempt
-def get_countries(request) -> JsonResponse:
+def get_countries(request: HttpRequest) -> JsonResponse:
     key = "countries"
-    result = cache.get(key)
-    if result:
+    if result := cache.get(key):
         return result
 
     countries = Country.objects.all().values("id", "name").order_by("name")
@@ -36,11 +42,11 @@ def get_countries(request) -> JsonResponse:
 
 
 @csrf_exempt
-def get_lifetable_years(request) -> JsonResponse:
+def get_lifetable_years(request: HttpRequest) -> JsonResponse:
     country = request.POST.get("country")
     cache_key = f"lifetable_country_years"
-    result = cache.get(cache_key)
-    if result:
+
+    if result := cache.get(cache_key):
         return result
 
     years = [x["year"] for x in LifeTable.objects.filter(country__name=country).values("year").distinct().order_by("-year")]
@@ -51,12 +57,15 @@ def get_lifetable_years(request) -> JsonResponse:
 
 
 @csrf_exempt
-def get_life_table(request) -> JsonResponse:
+def get_life_table(request: HttpRequest) -> JsonResponse:
     country = request.POST.get("country")
-    sex = request.POST.get("sex").lower()[0]
+    sex = request.POST.get("sex", "").lower()[0]
     year = request.POST.get("year")
     cache_key = f"{country}{year}{sex}".lower()
-    cache_key = "".join([c for c in cache_key if c in string.ascii_lowercase or c in string.digits])  # memcache keys are a little restrictive
+    cache_key = helpers.sanitize_cache_key(cache_key)
+
+    if result := cache.get(cache_key):
+        return result
 
     life_table = (
         LifeTable.objects.filter(country__name=country, year=year, sex=sex, age__lte=109)
@@ -66,5 +75,41 @@ def get_life_table(request) -> JsonResponse:
     life_table = list(life_table)
 
     result = add_access_control_headers(JsonResponse(life_table, safe=False))
+    cache.set(cache_key, result)
+    return result
+
+
+@csrf_exempt
+def series_index(request: HttpRequest) -> JsonResponse:
+    cache_key = "series_index"
+    if result := cache.get(cache_key):
+        return result
+
+    result = [x for x in MortalitySeries.objects.order_by("id").values("id", "tags")]
+    for r in result:
+        r["tags"] = [x[0] for x in MortalityTag.objects.filter(id__in=r["tags"]).values_list("name")]
+
+    result = add_access_control_headers(JsonResponse(result, safe=False))
+    cache.set(cache_key, result)
+    return result
+
+
+@csrf_exempt
+def get_series_data(request: HttpRequest) -> JsonResponse:
+    body = json.loads(request.body)
+    series_id = body.get("series_id")
+    cache_key = f"series_index_{series_id}"
+    if result := cache.get(cache_key):
+        return result
+
+    # Pythonic atoi
+    try:
+        series_id = int(series_id)
+    except:
+        return generate_error_response(f"series_id `{series_id}` must be an integer")
+
+    result = list(MortalityDatum.objects.filter(series_id=series_id).order_by("-date", "age").values("age", "date", "value"))
+
+    result = add_access_control_headers(JsonResponse(result, safe=False))
     cache.set(cache_key, result)
     return result

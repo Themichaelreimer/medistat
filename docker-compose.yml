@@ -4,6 +4,8 @@ services:
   backend:
     hostname: ${PROJECT_NAME}_backend
     image: backend
+    volumes:
+      - datalake:/datalake
     networks:
       - backend
     healthcheck:
@@ -38,6 +40,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
+    environment:
+      - FRONTEND_HOST=${FRONTEND_HOST}
     labels:
       - traefik.enable=true
       - traefik.http.routers.frontend_${PROJECT_NAME}.rule=Host(`${FRONTEND_HOST}`)
@@ -47,7 +51,7 @@ services:
       - traefik.http.services.frontend_${PROJECT_NAME}.loadbalancer.server.port=80
 
   postgres:
-    hostname: ${PROJECT_NAME}_postgres
+    hostname: db.${HOST}
     image: postgres:14.6
     restart: always  # If the container restarts endlessly and you can't figure out why, change this to 'never'
     environment:
@@ -59,7 +63,11 @@ services:
     networks:
       - backend
     labels:
-      - traefik.enable=false
+      - traefik.enable=true
+      - traefik.tcp.routers.db_${PROJECT_NAME}.rule=HostSNI(`*`)
+      - traefik.tcp.routers.db_${PROJECT_NAME}.entrypoints=db_entrypoint
+      - traefik.tcp.services.db_${PROJECT_NAME}.loadbalancer.server.port=5432
+      - traefik.tcp.routers.db_${PROJECT_NAME}.service=db_${PROJECT_NAME}
 
   statsd:
     image: graphiteapp/graphite-statsd
@@ -96,7 +104,7 @@ services:
       - traefik.http.services.grafana_${PROJECT_NAME}.loadbalancer.server.port=3000
 
   redis:
-    hostname: ${PROJECT_NAME}_redis
+    hostname: cache.${HOST}
     image: redis:latest
     command: >
       --requirepass ${REDIS_PASSWORD}
@@ -110,7 +118,11 @@ services:
     networks:
       - backend
     labels:
-      - traefik.enable=false
+      - traefik.enable=true
+      - traefik.tcp.routers.cache_${PROJECT_NAME}.rule=HostSNI(`*`)
+      - traefik.tcp.routers.cache_${PROJECT_NAME}.entrypoints=cache_entrypoint
+      - traefik.tcp.services.cache_${PROJECT_NAME}.loadbalancer.server.port=6379
+      - traefik.tcp.routers.cache_${PROJECT_NAME}.service=cache_${PROJECT_NAME}
 
 networks:
   backend:
@@ -124,4 +136,7 @@ volumes:
     driver: local
 
   redis-data:
+    driver: local
+
+  datalake:
     driver: local

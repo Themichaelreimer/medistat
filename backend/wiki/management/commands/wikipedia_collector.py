@@ -1,3 +1,5 @@
+from django.core.management.base import BaseCommand
+
 import os, time
 import requests
 
@@ -10,6 +12,13 @@ PAGES = "0-9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z".split(",")
     This script downloads a set of wikipedia pages.
     I think this set makes a reasonably complete list of diseases
 """
+
+
+class Command(BaseCommand):
+    help = "Loads wikipedia HTML into the articles table. Should run after wikipedia_collector.py"
+
+    def handle(self, *args, **kwargs):
+        pass
 
 
 def get_page(url: str) -> str:
