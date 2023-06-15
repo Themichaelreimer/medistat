@@ -76,7 +76,7 @@ class MortalitySeries(models.Model):
         if res := cache.get(key):
             return res
 
-        tags = [MortalityTag.quiet_get_or_create(t).id for t in tag_names]
+        tags = [MortalityTag.quiet_get_or_create(t).id for t in tag_names]  # type:ignore
         res, _ = MortalitySeries.objects.get_or_create(tags=tags)
 
         cache.set(key, res)

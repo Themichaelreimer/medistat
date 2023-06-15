@@ -1,17 +1,16 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
-  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
   "dependencies": {
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "dotenv": "^16.0.3",
     "highcharts": "^9.0.1",
     "highcharts-vue": "^1.4.0",
+    "node": "^16.20.0",
     "vue": "^2.6.11",
     "vue-chartjs": "^3.5.1",
     "vue-router": "^3.2.0",
@@ -32,7 +31,6 @@
     "vuetify-loader": "^1.7.0"
   },
   "eslintConfig": {
-    "root": true,
     "env": {
       "node": true
     },
@@ -43,11 +41,15 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
+    "root": true,
     "rules": {}
   },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead"
-  ]
+  "name": "frontend",
+  "private": true,
+  "scripts": {
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "serve": "vue-cli-service serve"
+  },
+  "version": "0.1.0"
 }

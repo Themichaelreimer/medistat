@@ -91,7 +91,7 @@ def transform(raw_data: Optional[Iterable[RawData]] = None) -> int:
     return new_records
 
 
-def get_zipped_data(email: str, password: str) -> Tuple[BytesIO, datetime.datetime]:
+def get_zipped_data(email: str, password: str) -> Tuple[bytes, datetime.datetime]:
     """
     Logs into the HMD website, downloads the zip file containing the current state of the dataset.
     The returned result is the zip file as an in-memory file

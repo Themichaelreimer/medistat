@@ -40,6 +40,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
+    environment:
+      - FRONTEND_HOST=${FRONTEND_HOST}
     labels:
       - traefik.enable=true
       - traefik.http.routers.frontend_${PROJECT_NAME}.rule=Host(`${FRONTEND_HOST}`)

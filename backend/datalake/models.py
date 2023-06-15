@@ -32,7 +32,9 @@ class RawData(models.Model):
         indexes = [models.Index(fields=["source", "-processed_timestamp"]), models.Index(fields=["source", "md5_hash"])]
 
     @staticmethod
-    def store(source: DataSource, raw_data: Union[str, bytes], published_timestamp: Optional[datetime.datetime] = None, link: str = "") -> None:
+    def store(
+        source: DataSource, raw_data: Union[str, bytes], published_timestamp: Optional[datetime.datetime] = None, link: str = ""
+    ) -> "RawData":
         # This block looks inefficient, but it looks this way to play nicely with static analysis
         if type(raw_data) == str:
             raw_data = raw_data.encode("utf-8")

@@ -24,12 +24,14 @@ export function postRequest(url, data, callback){
 }
 
 function getBackendURL(){
-  const hostname = window.location.host;
+
+  const hostname = process.env.VUE_APP_FRONTEND_HOST;
+  const backendHostname = process.env.VUE_APP_BACKEND_HOST;
   const protocol = location.protocol;
-  // Special case for the production URL, not hosted at a subdomain
-  if(hostname == 'medistat.online'){
-    return protocol + '//backend-medistat.medistat.online/';
-  }
   // "regular" case where we host at a subdomain
+  if(backendHostname !== undefined){
+    console.log(backendHostname);
+    return protocol + '//' + backendHostname + '/';
+  }
   return protocol + '//backend-' + hostname + '/';
 }
