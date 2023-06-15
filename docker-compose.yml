@@ -51,7 +51,7 @@ services:
       - traefik.http.services.frontend_${PROJECT_NAME}.loadbalancer.server.port=80
 
   postgres:
-    hostname: db.${HOST}
+    hostname: ${PROJECT_NAME}_postgres
     image: postgres:14.6
     restart: always  # If the container restarts endlessly and you can't figure out why, change this to 'never'
     environment:
