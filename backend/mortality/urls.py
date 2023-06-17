@@ -24,6 +24,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/login/", accounts_views.user_login),
     path("accounts/logout/", accounts_views.user_logout),
+    path("accounts/register/", accounts_views.user_register),
     # Old version of api
     path("diseases/", wiki_views.disease_index),
     path("lifetables/", hmd_views.get_life_table),

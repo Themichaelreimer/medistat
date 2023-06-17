@@ -48,7 +48,9 @@ CORS_ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost" "http://medistat" "https://api.medistat.com",
+    "http://localhost",
+    "http://medistat",
+    "https://api.medistat.com",
     f"http://backend-{os.environ.get('PROJECT_NAME','')}.localhost",
     f"https://{os.environ.get('PROJECT_NAME','')}.medistat.online",
 ]
