@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "*j0rudf=32cn+_)bw+r9j7wo)&q40r0-k5dlml5i278en%yz10"
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", False)
@@ -34,6 +34,7 @@ ALLOWED_HOSTS = [
     "backend.medistat.online",
     "backend.staging.medistat.online",
     "api.medistat.online",
+    f"backend-{os.environ.get('PROJECT_NAME','')}.localhost",
     f"backend-{os.environ.get('PROJECT_NAME','')}.medistat.online",
 ]
 
@@ -42,11 +43,13 @@ CORS_ALLOWED_HOSTS = [
     "http://localhost",
     "http://medistat",
     "https://medistat.online",
+    f"backend-{os.environ.get('PROJECT_NAME','')}.localhost",
     f"https://backend-{os.environ.get('PROJECT_NAME','')}.medistat.online",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost" "http://medistat" "https://api.medistat.com",
+    f"http://backend-{os.environ.get('PROJECT_NAME','')}.localhost",
     f"https://{os.environ.get('PROJECT_NAME','')}.medistat.online",
 ]
 
@@ -56,16 +59,17 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 INSTALLED_APPS = [
     "corsheaders",
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "accounts",
     "hmd",
     "wiki",
     "disease",
     "datalake",
+    "django.contrib.admin",
 ]
 
 MIDDLEWARE = [
@@ -84,7 +88,7 @@ ROOT_URLCONF = "mortality.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -102,8 +106,8 @@ WSGI_APPLICATION = "mortality.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-# PG_HOSTNAME = f"db.{os.environ['PROJECT_NAME']}_{os.environ['POSTGRES_HOSTNAME']}" if os.environ.get("POSTGRES_HOSTNAME") else "db.localhost"
-PG_HOSTNAME = f"db.{os.environ.get('HOST', 'localhost')}"
+PG_HOSTNAME = f"{os.environ['PROJECT_NAME']}_{os.environ['POSTGRES_HOSTNAME']}" if os.environ.get("POSTGRES_HOSTNAME") else "localhost"
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -146,6 +150,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = "accounts.Account"
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/

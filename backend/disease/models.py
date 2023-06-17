@@ -63,11 +63,10 @@ class Disease(models.Model):
     and some categorical and numerical data.
     """
 
+    parent = models.ForeignKey("Disease", on_delete=models.SET_NULL, null=True)
     name = models.CharField(default="", max_length=255, unique=True)
-    other_names = models.TextField(default="")
+    aliases = models.TextField(default="")
     icd10 = models.CharField(null=True, max_length=64)
-    differential_diagnosis = models.ManyToManyField("Disease")  # Diseases a disease could be confused with
-    # statistics are a many-to-one relationship implemented via a foreign key on Statistic
 
     def to_dict(self) -> dict:
         # TODO: Look at how model_to_dict handles many_to_many fields, might be ideal

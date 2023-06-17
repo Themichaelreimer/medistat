@@ -30,7 +30,6 @@ function getBackendURL(){
   const protocol = location.protocol;
   // "regular" case where we host at a subdomain
   if(backendHostname !== undefined){
-    console.log(backendHostname);
     return protocol + '//' + backendHostname + '/';
   }
   return protocol + '//backend-' + hostname + '/';

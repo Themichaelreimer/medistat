@@ -109,4 +109,4 @@ class ProcessorTests(TestCase):
 
     def test_get_infobox(self) -> None:
         if self.real_article_html:
-            print(wiki_processor.get_infobox(self.real_article_html))
+            wiki_processor.get_infobox(self.real_article_html)
